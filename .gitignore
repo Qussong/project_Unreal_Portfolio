@@ -74,11 +74,11 @@ Plugins/*/Intermediate/*
 DerivedDataCache/*
 
 # Custom Ignore
-# GHGame_Test/Binaries/*
-# GHGame_Test/Intermediate/*
-# GHGame_Test/Saved/*
+GamePortFolio/Binaries/*
+GamePortFolio/Intermediate/*
+GamePortFolio/Saved/*
 
-# GHGame_Test/Content/*
-# !GHGame_Test/Content/Mine
+GamePortFolio/Content/*
+!GamePortFolio/Content/Gihoon
 
 
