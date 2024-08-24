@@ -5,11 +5,12 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
-
 #include "InputMappingContext.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "Input/GHPlayerInputAction.h"
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Controller/GHPlayerController.h"
 
 AGHPlayer::AGHPlayer()
 {
@@ -20,6 +21,9 @@ AGHPlayer::AGHPlayer()
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetWorldRotation(FRotator(-50.f, 0.f, 0.f));
 	CameraBoom->TargetArmLength = 1400.f;
+	CameraBoom->bInheritYaw = false;
+	CameraBoom->bInheritPitch = false;
+	CameraBoom->bInheritRoll = false;
 	CameraBoom->bDoCollisionTest = false;
 	CameraBoom->bEnableCameraLag = true;
 	CameraBoom->CameraLagSpeed = 3.f;
@@ -94,22 +98,27 @@ void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AGHPlayer::IA_SetDestination_Triggered(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("IA_SetDestination_Triggered"));
+	Cast<AGHPlayerController>(GetController())->GetLocationUnderCursor();
+	Cast<AGHPlayerController>(GetController())->Follow();
 }
 
 void AGHPlayer::IA_SetDestination_Started(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("IA_SetDestination_Started"));
+	GetCharacterMovement()->StopMovementImmediately();
 }
 
-void AGHPlayer::IA_SetDestination_Canceled(const FInputActionValue& Value)
+void AGHPlayer::IA_SetDestination_Canceled(const FInputActionInstance& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("IA_SetDestination_Canceled"));
 }
 
-void AGHPlayer::IA_SetDestination_Completed(const FInputActionValue& Value)
+void AGHPlayer::IA_SetDestination_Completed(const FInputActionInstance& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("IA_SetDestination_Completed"));
+	float ElapsedTime = Value.GetElapsedTime();
+
+	if (ElapsedTime < 0.5f)
+	{
+		Cast<AGHPlayerController>(GetController())->MoveTo();
+	}
 }
 
 void AGHPlayer::IA_PlayerAttack_Started(const FInputActionValue& Value)

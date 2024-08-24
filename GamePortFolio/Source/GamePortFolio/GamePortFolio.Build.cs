@@ -16,7 +16,10 @@ public class GamePortFolio : ModuleRules
 			"CoreUObject", 
 			"Engine", 
 			"InputCore", 
-			"EnhancedInput" 
-		});
+			"EnhancedInput",
+            "AIModule",
+            "NavigationSystem",
+            "Niagara"
+        });
 	}
 }

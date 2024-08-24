@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Character/GHCharacterBase.h"
 #include "InputActionValue.h"
+#include "InputAction.h"
 #include "GHPlayer.generated.h"
 
 /**
@@ -39,12 +40,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<class UInputMappingContext> IMC;	// Input Mapping Context
 
+// IA_SetDestination Section
 protected:
 	void IA_SetDestination_Triggered(const FInputActionValue& Value);
 	void IA_SetDestination_Started(const FInputActionValue& Value);
-	void IA_SetDestination_Canceled(const FInputActionValue& Value);
-	void IA_SetDestination_Completed(const FInputActionValue& Value);
+	void IA_SetDestination_Canceled(const FInputActionInstance& Value);
+	void IA_SetDestination_Completed(const FInputActionInstance& Value);
 
+// IA_PlayerAttack Section
 	void IA_PlayerAttack_Started(const FInputActionValue& Value);
+
 
 };

@@ -30,4 +30,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mouse")
 	uint8 IsEnableMouseOverEvents : 1;
 
+// IA_SetDestination Section
+public:
+	bool isHit = false;		// 마우스 커서 충돌여부
+	FVector Destination;	// 마우스 커서 충돌위치 = 플레이어 목적지
+public:
+	void GetLocationUnderCursor();
+	void Follow();
+	void MoveTo();
+
 };

@@ -2,6 +2,10 @@
 
 
 #include "Controller/GHPlayerController.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "NiagaraSystem.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 
 AGHPlayerController::AGHPlayerController()
 {
@@ -17,4 +21,33 @@ void AGHPlayerController::BeginPlay()
     bEnableClickEvents = IsEnableClickEvents;
     bEnableMouseOverEvents = IsEnableMouseOverEvents;
 
+}
+
+void AGHPlayerController::GetLocationUnderCursor()
+{
+	FHitResult HitResult;
+	ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECC_Visibility);
+	isHit = GetHitResultUnderCursorByChannel(TraceType, true, HitResult);
+	if (isHit)
+	{
+		Destination = HitResult.Location;	// 마우스 커서 충돌위치 = 목적지
+	}
+}
+
+void AGHPlayerController::Follow()
+{
+	FVector From = GetPawn()->GetActorLocation();
+	FVector To = Destination;
+	FVector Direction = (To - From).GetSafeNormal();
+
+	GetPawn()->AddMovementInput(Direction, 1.f, false);
+}
+
+void AGHPlayerController::MoveTo()
+{
+	UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, Destination);
+
+	UNiagaraSystem* NiagaraSystem = 
+		LoadObject<UNiagaraSystem>(nullptr, TEXT("/Script/Niagara.NiagaraSystem'/Game/Gihoon/VFX/Cursor/FX_Cursor.FX_Cursor'"));
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NiagaraSystem, Destination);
 }

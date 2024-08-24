@@ -21,13 +21,9 @@ AGHCharacterBase::AGHCharacterBase()
 	// Movement Section
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 500.f, 0.f);
-	GetCharacterMovement()->JumpZVelocity = 300.f;
-	GetCharacterMovement()->AirControl = 0.35f;
-	GetCharacterMovement()->MaxWalkSpeed = 300.f;
-	GetCharacterMovement()->MinAnalogWalkSpeed = 20.f;
-	GetCharacterMovement()->BrakingDecelerationWalking = 2000.f;
-	GetCharacterMovement()->RotationRate = FRotator(0.f, 200.f, 0.f);
+	GetCharacterMovement()->MaxWalkSpeed = 500.f;
+	//GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
+	//GetCharacterMovement()->JumpZVelocity = 420.f;
 }
 
 void AGHCharacterBase::PostInitializeComponents()
