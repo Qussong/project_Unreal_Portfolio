@@ -19,7 +19,9 @@ public class GamePortFolio : ModuleRules
 			"EnhancedInput",
             "AIModule",
             "NavigationSystem",
-            "Niagara"
+            "Niagara",
+            "UMG",
+
         });
 	}
 }

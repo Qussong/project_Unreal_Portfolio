@@ -11,9 +11,15 @@
 #include "Input/GHPlayerInputAction.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Controller/GHPlayerController.h"
+#include "UI/Player/GHPlayerWidget.h"
+
+#include "Components/ProgressBar.h"
+#include "Stat/GHBaseStatComponent.h"
+//#include "Stat/Player/GHPlayerStatComponent.h"
 
 AGHPlayer::AGHPlayer()
 {
+	// Tick Section
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Camera Section
@@ -40,7 +46,9 @@ AGHPlayer::AGHPlayer()
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh>
 		PlayerMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Gihoon/UE_Characters/Mannequin_UE4/Meshes/SK_Mannequin_GH.SK_Mannequin_GH'"));
 	if (PlayerMeshRef.Object)
+	{
 		GetMesh()->SetSkeletalMesh(PlayerMeshRef.Object);
+	}
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90.f), FRotator(0.f, -90.f, 0.f));
 	
 	// AnimInstance Section
@@ -55,13 +63,20 @@ AGHPlayer::AGHPlayer()
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext>
 		IMCRef(TEXT("/Script/EnhancedInput.InputMappingContext'/Game/Gihoon/Input/IMC_Player.IMC_Player'"));
 	if (IMCRef.Succeeded())
+	{
 		IMC = IMCRef.Object;
+	}
 
-}
+	// UI Section
+	static ConstructorHelpers::FClassFinder<UGHPlayerWidget>
+		PlayerWidgetRef(TEXT("/Game/Gihoon/UI/WB_Player.WB_Player_C"));
+	if (PlayerWidgetRef.Succeeded())
+	{
+		PlayerWidgetClass = PlayerWidgetRef.Class;
+	}
 
-void AGHPlayer::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
+	// Stat Section
+	//Stat = CreateDefaultSubobject<UGHPlayerStatComponent>(TEXT("PlayerStat"));
 
 }
 
@@ -74,9 +89,24 @@ void AGHPlayer::BeginPlay()
 	UEnhancedInputLocalPlayerSubsystem* Subsystem =
 		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
 	if (IsValid(Subsystem))
+	{
 		Subsystem->AddMappingContext(IMC, 0);
+	}
 
+	// UI Section
+	if (IsValid(PlayerWidgetClass))
+	{
+		PlayerWidgetInstance = CreateWidget<UGHPlayerWidget>(GetWorld(), PlayerWidgetClass);
+		if (IsValid(PlayerWidgetInstance) && IsValid(Stat))
+		{
+			PlayerWidgetInstance->AddToViewport();
 
+			PlayerWidgetInstance->GetHealthBar()->SetPercent(Stat->GetCurrnetHealth() / Stat->GetMaxHealth());
+			PlayerWidgetInstance->GetManaBar()->SetPercent(1.f);
+			PlayerWidgetInstance->GetStaminaBar()->SetPercent(1.f);
+			PlayerWidgetInstance->GetEXPBar()->SetPercent(1.f);
+		}
+	}
 }
 
 void AGHPlayer::Tick(float DeltaTime)
@@ -97,8 +127,9 @@ void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComp->BindAction(PlayerInput->IA_SetDestination, ETriggerEvent::Started, this, &AGHPlayer::IA_SetDestination_Started);
 		EnhancedInputComp->BindAction(PlayerInput->IA_SetDestination, ETriggerEvent::Canceled, this, &AGHPlayer::IA_SetDestination_Canceled);
 		EnhancedInputComp->BindAction(PlayerInput->IA_SetDestination, ETriggerEvent::Completed, this, &AGHPlayer::IA_SetDestination_Completed);
+		EnhancedInputComp->BindAction(PlayerInput->IA_SetDestination, ETriggerEvent::Completed, this, &AGHPlayer::IA_SetDestination_Completed);
 
-		EnhancedInputComp->BindAction(PlayerInput->IA_PlayerAttack, ETriggerEvent::Started, this, &AGHPlayer::IA_PlayerAttack_Started);
+		EnhancedInputComp->BindAction(PlayerInput->IA_SlotNum1, ETriggerEvent::Started, this, &AGHPlayer::IA_SlotNum1_Started);
 	}
 }
 
@@ -130,4 +161,15 @@ void AGHPlayer::IA_SetDestination_Completed(const FInputActionInstance& Value)
 void AGHPlayer::IA_PlayerAttack_Started(const FInputActionValue& Value)
 {
 	UE_LOG(LogTemp, Log, TEXT("Player Attack"));
+}
+
+void AGHPlayer::IA_SlotNum1_Started(const FInputActionValue& Value)
+{
+	if (IsValid(Stat))
+	{
+		Stat->DecreaseHealth(10.f);
+		PlayerWidgetInstance->GetHealthBar()->SetPercent(Stat->GetCurrnetHealth() / Stat->GetMaxHealth());
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Slot Num1"));
 }

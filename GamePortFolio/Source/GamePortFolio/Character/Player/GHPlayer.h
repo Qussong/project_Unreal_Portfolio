@@ -20,7 +20,6 @@ public:
 	AGHPlayer();
 
 protected:
-	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 
 public:
@@ -50,5 +49,14 @@ protected:
 // IA_PlayerAttack Section
 	void IA_PlayerAttack_Started(const FInputActionValue& Value);
 
+// IA_Slot Section
+	void IA_SlotNum1_Started(const FInputActionValue& Value);
+
+// UI Section
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<class UGHPlayerWidget> PlayerWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<class UGHPlayerWidget> PlayerWidgetInstance;
 
 };

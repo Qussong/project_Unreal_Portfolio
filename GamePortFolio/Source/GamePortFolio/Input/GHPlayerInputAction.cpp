@@ -20,4 +20,11 @@ UGHPlayerInputAction::UGHPlayerInputAction()
 		IA_PlayerAttack = InputActionPlayerAttackRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction>
+		InputActionSlotNum1Ref(TEXT("/Script/EnhancedInput.InputAction'/Game/Gihoon/Input/Action/IA_SlotNum1.IA_SlotNum1'"));
+	if (InputActionSlotNum1Ref.Succeeded())
+	{
+		IA_SlotNum1 = InputActionSlotNum1Ref.Object;
+	}
+
 }

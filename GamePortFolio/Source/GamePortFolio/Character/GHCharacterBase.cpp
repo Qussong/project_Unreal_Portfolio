@@ -4,6 +4,7 @@
 #include "Character/GHCharacterBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Animation/GHBaseAnim.h"
+#include "Stat/GHBaseStatComponent.h"
 
 AGHCharacterBase::AGHCharacterBase()
 {
@@ -22,8 +23,9 @@ AGHCharacterBase::AGHCharacterBase()
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->bUseControllerDesiredRotation = true;
 	GetCharacterMovement()->MaxWalkSpeed = 500.f;
-	//GetCharacterMovement()->RotationRate = FRotator(0.f, 640.f, 0.f);
-	//GetCharacterMovement()->JumpZVelocity = 420.f;
+
+	// Stat Section
+	Stat = CreateDefaultSubobject<UGHBaseStatComponent>(TEXT("Stat"));
 }
 
 void AGHCharacterBase::PostInitializeComponents()

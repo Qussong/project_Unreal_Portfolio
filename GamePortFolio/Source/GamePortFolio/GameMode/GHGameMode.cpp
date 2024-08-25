@@ -7,7 +7,7 @@ AGHGameMode::AGHGameMode()
 {
 	// Default Pawn Section
 	static ConstructorHelpers::FClassFinder<APawn>
-		PlayerPawnClassRef(TEXT("/Game/Gihoon/Characters/Player/BP_GHPlayer.BP_GHPlayer_C"));
+		PlayerPawnClassRef(TEXT("/Game/Gihoon/Characters/Player/BPC_GHPlayer.BPC_GHPlayer_C"));
 	if (PlayerPawnClassRef.Succeeded())
 		DefaultPawnClass = PlayerPawnClassRef.Class;
 

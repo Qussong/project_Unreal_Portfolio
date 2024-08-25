@@ -22,6 +22,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+// Anim Section
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Anim)
 	TObjectPtr<class UGHBaseAnim> Anim;
+
+// Stat Section
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat)
+	TObjectPtr<class UGHBaseStatComponent> Stat;
 };
