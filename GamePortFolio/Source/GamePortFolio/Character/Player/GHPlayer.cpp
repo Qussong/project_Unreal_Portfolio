@@ -14,8 +14,7 @@
 #include "UI/Player/GHPlayerWidget.h"
 
 #include "Components/ProgressBar.h"
-#include "Stat/GHBaseStatComponent.h"
-//#include "Stat/Player/GHPlayerStatComponent.h"
+#include "Stat/Player/GHPlayerStatComponent.h"
 
 AGHPlayer::AGHPlayer()
 {
@@ -76,7 +75,7 @@ AGHPlayer::AGHPlayer()
 	}
 
 	// Stat Section
-	//Stat = CreateDefaultSubobject<UGHPlayerStatComponent>(TEXT("PlayerStat"));
+	Stat = CreateDefaultSubobject<UGHPlayerStatComponent>(TEXT("PlayerStat"));
 
 }
 
@@ -97,14 +96,15 @@ void AGHPlayer::BeginPlay()
 	if (IsValid(PlayerWidgetClass))
 	{
 		PlayerWidgetInstance = CreateWidget<UGHPlayerWidget>(GetWorld(), PlayerWidgetClass);
-		if (IsValid(PlayerWidgetInstance) && IsValid(Stat))
+		UGHPlayerStatComponent* PlayerStat = Cast<UGHPlayerStatComponent>(Stat);
+		if (IsValid(PlayerWidgetInstance) && IsValid(PlayerStat))
 		{
 			PlayerWidgetInstance->AddToViewport();
 
-			PlayerWidgetInstance->GetHealthBar()->SetPercent(Stat->GetCurrnetHealth() / Stat->GetMaxHealth());
-			PlayerWidgetInstance->GetManaBar()->SetPercent(1.f);
-			PlayerWidgetInstance->GetStaminaBar()->SetPercent(1.f);
-			PlayerWidgetInstance->GetEXPBar()->SetPercent(1.f);
+			PlayerWidgetInstance->GetHealthBar()->SetPercent(PlayerStat->GetCurrnetHealth() / PlayerStat->GetMaxHealth());
+			PlayerWidgetInstance->GetManaBar()->SetPercent(PlayerStat->GetCurrentMana() / PlayerStat->GetMaxMana());
+			PlayerWidgetInstance->GetStaminaBar()->SetPercent(PlayerStat->GetCurrentStamina() / PlayerStat->GetMaxStamina());
+			PlayerWidgetInstance->GetEXPBar()->SetPercent(PlayerStat->GetCurrentEXP() / PlayerStat->GetMaxEXP());
 		}
 	}
 }

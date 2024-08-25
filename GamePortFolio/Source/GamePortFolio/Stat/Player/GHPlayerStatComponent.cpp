@@ -19,8 +19,10 @@ UGHPlayerStatComponent::UGHPlayerStatComponent()
 
 void UGHPlayerStatComponent::BeginPlay()
 {
+	Super::BeginPlay();
 }
 
 void UGHPlayerStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
+	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 }
