@@ -38,12 +38,18 @@ AGHPlayer::AGHPlayer()
 
 	// Skeletal Mesh Section
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh>
-		PlayerMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Gihoon/UE_Characters/Mannequin_UE4/Meshes/SK_Mannequin.SK_Mannequin'"));
+		PlayerMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Gihoon/UE_Characters/Mannequin_UE4/Meshes/SK_Mannequin_GH.SK_Mannequin_GH'"));
 	if (PlayerMeshRef.Object)
 		GetMesh()->SetSkeletalMesh(PlayerMeshRef.Object);
 	GetMesh()->SetRelativeLocationAndRotation(FVector(0.f, 0.f, -90.f), FRotator(0.f, -90.f, 0.f));
 	
 	// AnimInstance Section
+	static ConstructorHelpers::FClassFinder<UAnimInstance>
+		PlayerAnimClassRef(TEXT("/Game/Gihoon/Animations/Player/ABP_GHPlayer.ABP_GHPlayer_C"));
+	if (PlayerAnimClassRef.Succeeded())
+	{
+		GetMesh()->SetAnimInstanceClass(PlayerAnimClassRef.Class);
+	}
 
 	// IMC Section
 	static ConstructorHelpers::FObjectFinder<UInputMappingContext>
