@@ -118,7 +118,7 @@ void AGHPlayer::BeginPlay()
 void AGHPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 }
 
 void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -135,6 +135,9 @@ void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComp->BindAction(PlayerInput->IA_SetDestination, ETriggerEvent::Completed, this, &AGHPlayer::IA_SetDestination_Completed);
 
 		EnhancedInputComp->BindAction(PlayerInput->IA_SlotNum1, ETriggerEvent::Started, this, &AGHPlayer::IA_SlotNum1_Started);
+
+		EnhancedInputComp->BindAction(PlayerInput->IA_Pickup, ETriggerEvent::Started, this, &AGHPlayer::IA_Pickup_Started);
+		PickupActionValue = &EnhancedInputComp->BindActionValue(PlayerInput->IA_Pickup);
 	}
 }
 
@@ -177,4 +180,9 @@ void AGHPlayer::IA_SlotNum1_Started(const FInputActionValue& Value)
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Slot Num1"));
+}
+
+void AGHPlayer::IA_Pickup_Started(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Pick up!"));
 }

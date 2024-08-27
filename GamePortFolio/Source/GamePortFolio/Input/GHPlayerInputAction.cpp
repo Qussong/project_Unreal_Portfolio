@@ -27,4 +27,11 @@ UGHPlayerInputAction::UGHPlayerInputAction()
 		IA_SlotNum1 = InputActionSlotNum1Ref.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction>
+		InputActionPickupRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Gihoon/Input/Action/IA_Pickup.IA_Pickup'"));
+	if (InputActionPickupRef.Succeeded())
+	{
+		IA_Pickup = InputActionPickupRef.Object;
+	}
+
 }

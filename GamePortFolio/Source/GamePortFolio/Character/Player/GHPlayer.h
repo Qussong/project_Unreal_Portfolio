@@ -48,12 +48,23 @@ protected:
 	void IA_SetDestination_Completed(const FInputActionInstance& Value);
 
 // IA_PlayerAttack Section
+protected:
 	void IA_PlayerAttack_Started(const FInputActionValue& Value);
 
 // IA_Slot Section
+protected:
 	void IA_SlotNum1_Started(const FInputActionValue& Value);
 
+// IA_Pickup
+protected:
+	void IA_Pickup_Started(const FInputActionValue& Value);
+	struct FEnhancedInputActionValueBinding* PickupActionValue;
+public:
+	FEnhancedInputActionValueBinding* GetPickupActionValue() { return PickupActionValue; }
+
+
 // UI Section
+protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	TSubclassOf<class UGHPlayerWidget> PlayerWidgetClass;
 

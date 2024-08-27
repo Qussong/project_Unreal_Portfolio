@@ -141,4 +141,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	TObjectPtr<class UGHItemWidgetComponent> PickupWidgetComp;
 
+// Input Section
+protected:
+	struct FEnhancedInputActionValueBinding* PlayerPickupAction;
 };

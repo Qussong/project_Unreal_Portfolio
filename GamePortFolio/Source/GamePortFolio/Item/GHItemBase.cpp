@@ -10,6 +10,7 @@
 #include "Character/Player/GHPlayer.h"
 #include "UI/Item/GHPickupWidget.h"
 #include "Components/TextBlock.h"
+#include "EnhancedInputComponent.h"
 
 AGHItemBase::AGHItemBase()
 {
@@ -91,6 +92,13 @@ void AGHItemBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (PlayerPickupAction)
+	{
+		if (PlayerPickupAction->GetValue().Get<bool>())
+		{
+			Destroy();
+		}
+	}
 }
 
 void AGHItemBase::SetID(FName NewID)
@@ -151,24 +159,26 @@ void AGHItemBase::HandleIDChanged(FName NewID)
 
 void AGHItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ACharacter* Character = Cast<ACharacter>(OtherActor);
-	AGHPlayer* Player = Cast<AGHPlayer>(Character);
+	ACharacter* CollideCharacter = Cast<ACharacter>(OtherActor);
+	AGHPlayer* Player = Cast<AGHPlayer>(CollideCharacter);
 	if (IsValid(Player))
 	{
 		PickupWidgetComp->SetVisibility(true);
+		PlayerPickupAction = Player->GetPickupActionValue();
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("Item Begin Overlap"));
+	//UE_LOG(LogTemp, Log, TEXT("Item Begin Overlap"));
 }
 
 void AGHItemBase::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	ACharacter* Character = Cast<ACharacter>(OtherActor);
-	AGHPlayer* Player = Cast<AGHPlayer>(Character);
+	ACharacter* CollideCharacter = Cast<ACharacter>(OtherActor);
+	AGHPlayer* Player = Cast<AGHPlayer>(CollideCharacter);
 	if (IsValid(Player))
 	{
 		PickupWidgetComp->SetVisibility(false);
+		PlayerPickupAction = nullptr;
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("Item End Overlap"));
+	//UE_LOG(LogTemp, Log, TEXT("Item End Overlap"));
 }
