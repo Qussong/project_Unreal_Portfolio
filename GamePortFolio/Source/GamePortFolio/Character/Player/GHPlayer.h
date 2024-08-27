@@ -20,6 +20,7 @@ public:
 	AGHPlayer();
 
 protected:
+	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 
 public:

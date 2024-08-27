@@ -79,18 +79,9 @@ AGHPlayer::AGHPlayer()
 
 }
 
-void AGHPlayer::BeginPlay()
+void AGHPlayer::PostInitializeComponents()
 {
-	Super::BeginPlay();
-
-	// IMC Section
-	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
-	UEnhancedInputLocalPlayerSubsystem* Subsystem =
-		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-	if (IsValid(Subsystem))
-	{
-		Subsystem->AddMappingContext(IMC, 0);
-	}
+	Super::PostInitializeComponents();
 
 	// UI Section
 	if (IsValid(PlayerWidgetClass))
@@ -107,6 +98,21 @@ void AGHPlayer::BeginPlay()
 			PlayerWidgetInstance->GetEXPBar()->SetPercent(PlayerStat->GetCurrentEXP() / PlayerStat->GetMaxEXP());
 		}
 	}
+}
+
+void AGHPlayer::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// IMC Section
+	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
+	UEnhancedInputLocalPlayerSubsystem* Subsystem =
+		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+	if (IsValid(Subsystem))
+	{
+		Subsystem->AddMappingContext(IMC, 0);
+	}
+
 }
 
 void AGHPlayer::Tick(float DeltaTime)

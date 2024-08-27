@@ -5,7 +5,9 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
-//#include "Components/SphereComponent.h"
+#include "UI/Item/GHItemWidgetComponent.h"
+#include "UI/GHBaseWidget.h"
+#include "Components/SphereComponent.h"
 
 AGHItemBase::AGHItemBase()
 {
@@ -22,6 +24,8 @@ AGHItemBase::AGHItemBase()
 	// Scene Section
 	ItemSceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("ItemScene"));
 	RootComponent = ItemSceneComp;
+	ItemSceneComp->SetRelativeLocation(FVector(0.f, 0.f, 50.f));
+	ItemSceneComp->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
 
 	// SkeletalMesh Section
 	ItemSkeletalMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemSkeletalMesh"));
@@ -36,15 +40,36 @@ AGHItemBase::AGHItemBase()
 	RotatingMovementComp->RotationRate = FRotator(0.f, 45.f, 0.f);
 
 	// Collision Section
-	//ItemCollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("ItemCollision"));
-	//RootComponent = ItemCollisionComp;
-	//ItemCollisionComp->SetSphereRadius(100.f);
-	//ItemCollisionComp->SetCollisionProfileName(TEXT("ItemProfile"));
+	ItemCollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
+	ItemCollisionComp->SetupAttachment(RootComponent);
+	ItemCollisionComp->SetSphereRadius(100.f);
+	ItemCollisionComp->SetCollisionProfileName(TEXT("ItemProfile"));
 
 	// ID Section
 	OnIDChanged.AddDynamic(this, &AGHItemBase::HandleIDChanged);
 	ID = FName("Cube");
 	HandleIDChanged(ID);
+
+	// UI Section
+	PickupWidget = CreateDefaultSubobject<UGHItemWidgetComponent>(TEXT("PickupWidget"));
+	PickupWidget->SetupAttachment(RootComponent);
+	PickupWidget->SetRelativeLocation(FVector(0.f, 0.f, 150.f));
+	static ConstructorHelpers::FClassFinder<UGHBaseWidget>
+		PickupBoardRef(TEXT("/Game/Gihoon/UI/WB_Pickup.WB_Pickup_C"));
+	if (PickupBoardRef.Succeeded())
+	{
+		PickupWidget->SetWidgetClass(PickupBoardRef.Class);
+		PickupWidget->SetWidgetSpace(EWidgetSpace::Screen);
+		PickupWidget->SetDrawAtDesiredSize(true);
+		PickupWidget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+		
+}
+
+void AGHItemBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
 }
 
 void AGHItemBase::BeginPlay()
