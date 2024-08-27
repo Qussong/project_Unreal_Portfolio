@@ -3,25 +3,41 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Component/BaseActorComponent.h"
+#include "Component/GHBaseActorComponent.h"
+#include "Item/GHItemStruct.h"
 #include "GHInventoryComponent.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GAMEPORTFOLIO_API UGHInventoryComponent : public UBaseActorComponent
+class GAMEPORTFOLIO_API UGHInventoryComponent : public UGHBaseActorComponent
 {
 	GENERATED_BODY()
 
 public:
 	UGHInventoryComponent();
+protected:
+	//virtual void BeginPlay() override;
+public:
+	//virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+// DataTable Section
+private:
+	TObjectPtr<UDataTable> ItemDataTable;
 
 protected:
-	virtual void BeginPlay() override;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = InventoryList)
+	TMap<FName, FItemInventoryData> Items;
 
+// Drop Section
 public:
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	bool Drop(FName ID, int32 NewQuantity = -1);
+private:
+	FItemInventoryData DropItem = {};
+	bool CheckItemExist(FName ID, int32 Quantity);	// ID 에 해당하는 아이템 정보가 있는지 확인
 
-
+// Inventory Check Section
+public:
+	void ReviewInventory();
 };

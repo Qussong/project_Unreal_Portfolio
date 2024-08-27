@@ -28,10 +28,17 @@ UGHPlayerInputAction::UGHPlayerInputAction()
 	}
 
 	static ConstructorHelpers::FObjectFinder<UInputAction>
-		InputActionPickupRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Gihoon/Input/Action/IA_Pickup.IA_Pickup'"));
-	if (InputActionPickupRef.Succeeded())
+		InputActionDropRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Gihoon/Input/Action/IA_Drop.IA_Drop'"));
+	if (InputActionDropRef.Succeeded())
 	{
-		IA_Pickup = InputActionPickupRef.Object;
+		IA_Drop = InputActionDropRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction>
+		InputActionInventoryRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Gihoon/Input/Action/IA_Inventory.IA_Inventory'"));
+	if (InputActionInventoryRef.Succeeded())
+	{
+		IA_Inventory = InputActionInventoryRef.Object;
 	}
 
 }

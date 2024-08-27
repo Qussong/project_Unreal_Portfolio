@@ -12,9 +12,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Controller/GHPlayerController.h"
 #include "UI/Player/GHPlayerWidget.h"
-
 #include "Components/ProgressBar.h"
 #include "Stat/Player/GHPlayerStatComponent.h"
+#include "Component/Inventory/GHInventoryComponent.h"
 
 AGHPlayer::AGHPlayer()
 {
@@ -77,6 +77,9 @@ AGHPlayer::AGHPlayer()
 	// Stat Section
 	Stat = CreateDefaultSubobject<UGHPlayerStatComponent>(TEXT("PlayerStat"));
 
+	// Inventory Section
+	Inventory = CreateDefaultSubobject<UGHInventoryComponent>(TEXT("Inventory"));
+
 }
 
 void AGHPlayer::PostInitializeComponents()
@@ -129,15 +132,17 @@ void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	const UGHPlayerInputAction* PlayerInput = GetDefault<UGHPlayerInputAction>();
 	if (IsValid(EnhancedInputComp) && IsValid(PlayerInput))
 	{
+		// Move
 		EnhancedInputComp->BindAction(PlayerInput->IA_SetDestination, ETriggerEvent::Triggered, this, &AGHPlayer::IA_SetDestination_Triggered);
 		EnhancedInputComp->BindAction(PlayerInput->IA_SetDestination, ETriggerEvent::Started, this, &AGHPlayer::IA_SetDestination_Started);
 		EnhancedInputComp->BindAction(PlayerInput->IA_SetDestination, ETriggerEvent::Canceled, this, &AGHPlayer::IA_SetDestination_Canceled);
 		EnhancedInputComp->BindAction(PlayerInput->IA_SetDestination, ETriggerEvent::Completed, this, &AGHPlayer::IA_SetDestination_Completed);
-
+		// Item Slot
 		EnhancedInputComp->BindAction(PlayerInput->IA_SlotNum1, ETriggerEvent::Started, this, &AGHPlayer::IA_SlotNum1_Started);
-
-		EnhancedInputComp->BindAction(PlayerInput->IA_Pickup, ETriggerEvent::Started, this, &AGHPlayer::IA_Pickup_Started);
-		PickupActionValue = &EnhancedInputComp->BindActionValue(PlayerInput->IA_Pickup);
+		// Drop
+		DropActionValue = &EnhancedInputComp->BindActionValue(PlayerInput->IA_Drop);
+		// Inventory
+		EnhancedInputComp->BindAction(PlayerInput->IA_Inventory, ETriggerEvent::Started, this, &AGHPlayer::IA_Inventory_Started);
 	}
 }
 
@@ -182,7 +187,7 @@ void AGHPlayer::IA_SlotNum1_Started(const FInputActionValue& Value)
 	UE_LOG(LogTemp, Log, TEXT("Slot Num1"));
 }
 
-void AGHPlayer::IA_Pickup_Started(const FInputActionValue& Value)
+void AGHPlayer::IA_Inventory_Started(const FInputActionInstance& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Pick up!"));
+	Inventory->ReviewInventory();
 }

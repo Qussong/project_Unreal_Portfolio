@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "BaseActorComponent.generated.h"
+#include "GHBaseActorComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class GAMEPORTFOLIO_API UBaseActorComponent : public UActorComponent
+class GAMEPORTFOLIO_API UGHBaseActorComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
 public:	
-	UBaseActorComponent();
+	UGHBaseActorComponent();
 
 protected:
 	virtual void BeginPlay() override;

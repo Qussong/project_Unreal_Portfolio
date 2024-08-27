@@ -11,6 +11,7 @@
 #include "UI/Item/GHPickupWidget.h"
 #include "Components/TextBlock.h"
 #include "EnhancedInputComponent.h"
+#include "Component/Inventory/GHInventoryComponent.h"
 
 AGHItemBase::AGHItemBase()
 {
@@ -71,14 +72,8 @@ AGHItemBase::AGHItemBase()
 	}
 		
 	// ID Section
-	//ID = FName("Cube");
-	ID = FName("Sword");
+	ID = FName("Cube");
 	OnIDChanged.AddDynamic(this, &AGHItemBase::HandleIDChanged);
-}
-
-void AGHItemBase::PostInitializeComponents()
-{
-	Super::PostInitializeComponents();
 }
 
 void AGHItemBase::BeginPlay()
@@ -92,22 +87,30 @@ void AGHItemBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (PlayerPickupAction)
-	{
-		if (PlayerPickupAction->GetValue().Get<bool>())
-		{
-			Destroy();
-		}
-	}
+	MoveToPlayerInventory();
 }
 
-void AGHItemBase::SetID(FName NewID)
+void AGHItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (ID != NewID)
+	ACharacter* CollideCharacter = Cast<ACharacter>(OtherActor);
+	Player = Cast<AGHPlayer>(CollideCharacter);
+	if (IsValid(Player))
 	{
-		ID = NewID;
-		OnIDChanged.Broadcast(ID);
+		PickupWidgetComp->SetVisibility(true);
+		PlayerPickupAction = Player->GetDropActionValue();
 	}
+
+}
+
+void AGHItemBase::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (IsValid(Player))
+	{
+		PickupWidgetComp->SetVisibility(false);
+		Player = nullptr;
+		PlayerPickupAction = nullptr;
+	}
+
 }
 
 void AGHItemBase::HandleIDChanged(FName NewID)
@@ -145,40 +148,41 @@ void AGHItemBase::HandleIDChanged(FName NewID)
 	}
 
 	// Custom Section
-	if (FText::FromName(FName("Sword Item")).EqualTo(ItemData->DisplayName))
+	if (ItemData->ID == FName("Cube"))
+	{
+		ItemStaticMeshComp->SetRelativeScale3D(FVector(.5f, .5f, .5f));
+	}
+	if (ItemData->ID == FName("Sword"))
 	{
 		ItemStaticMeshComp->SetRelativeScale3D(FVector(1.5f, 1.5f, 1.5f));
 		ItemStaticMeshComp->SetRelativeLocation(FVector(0.f, 60.f, 70.f));
 		ItemStaticMeshComp->SetRelativeRotation(FRotator(0.f, 0.f, 50.f));
 	}
-	if (FText::FromName(FName("Cube Item")).EqualTo(ItemData->DisplayName))
+}
+
+void AGHItemBase::SetID(FName NewID)
+{
+	if (ID != NewID)
 	{
-		ItemStaticMeshComp->SetRelativeScale3D(FVector(.5f, .5f, .5f));
+		ID = NewID;
+		OnIDChanged.Broadcast(ID);
 	}
 }
 
-void AGHItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AGHItemBase::MoveToPlayerInventory()
 {
-	ACharacter* CollideCharacter = Cast<ACharacter>(OtherActor);
-	AGHPlayer* Player = Cast<AGHPlayer>(CollideCharacter);
-	if (IsValid(Player))
+	if (PlayerPickupAction)
 	{
-		PickupWidgetComp->SetVisibility(true);
-		PlayerPickupAction = Player->GetPickupActionValue();
+		if (PlayerPickupAction->GetValue().Get<bool>())
+		{
+			UGHInventoryComponent* Inventory = Player->GetInventory();
+			bool isDrop = Inventory->Drop(ID, Quantity);
+
+			if (isDrop)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Emerald, FString::Printf(TEXT("Drop %s (%d)"), *ID.ToString(), Quantity));
+				Destroy();
+			}
+		}
 	}
-
-	//UE_LOG(LogTemp, Log, TEXT("Item Begin Overlap"));
-}
-
-void AGHItemBase::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	ACharacter* CollideCharacter = Cast<ACharacter>(OtherActor);
-	AGHPlayer* Player = Cast<AGHPlayer>(CollideCharacter);
-	if (IsValid(Player))
-	{
-		PickupWidgetComp->SetVisibility(false);
-		PlayerPickupAction = nullptr;
-	}
-
-	//UE_LOG(LogTemp, Log, TEXT("Item End Overlap"));
 }

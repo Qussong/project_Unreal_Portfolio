@@ -35,7 +35,22 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	TObjectPtr<class UCameraComponent>	FollowCamera;
 
-// Input Section
+// UI Section
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TSubclassOf<class UGHPlayerWidget> PlayerWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TObjectPtr<class UGHPlayerWidget> PlayerWidgetInstance;
+
+// Inventory Section
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Inventory)
+	TObjectPtr<class UGHInventoryComponent> Inventory;
+public:
+	FORCEINLINE UGHInventoryComponent* GetInventory() { return Inventory; }
+
+// IMC Section
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<class UInputMappingContext> IMC;	// Input Mapping Context
@@ -55,20 +70,14 @@ protected:
 protected:
 	void IA_SlotNum1_Started(const FInputActionValue& Value);
 
-// IA_Pickup
+// IA_Drop
 protected:
-	void IA_Pickup_Started(const FInputActionValue& Value);
-	struct FEnhancedInputActionValueBinding* PickupActionValue;
+	struct FEnhancedInputActionValueBinding* DropActionValue;
 public:
-	FEnhancedInputActionValueBinding* GetPickupActionValue() { return PickupActionValue; }
+	FEnhancedInputActionValueBinding* GetDropActionValue() { return DropActionValue; }
 
-
-// UI Section
+// IA_Inventory
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
-	TSubclassOf<class UGHPlayerWidget> PlayerWidgetClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
-	TObjectPtr<class UGHPlayerWidget> PlayerWidgetInstance;
+	void IA_Inventory_Started(const FInputActionInstance& Value);
 
 };

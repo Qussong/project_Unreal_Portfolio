@@ -4,62 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Item/GHItemStruct.h"
 #include "GHItemBase.generated.h"
-
-UENUM()
-enum class EItemInventoryType
-{
-	NONE,
-	POTION,
-	SCROLL,
-	WEAPON,
-	CLOTH,
-	ETC,
-};
-
-USTRUCT(BlueprintType)
-struct FItemHoldableData : public FTableRowBase
-{
-	GENERATED_USTRUCT_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<AActor> Equipper;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FName SocketName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FTransform Transform;
-};
-
-USTRUCT(BlueprintType)
-struct FItemInventoryData : public FTableRowBase
-{
-	GENERATED_USTRUCT_BODY()
-
-public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	EItemInventoryType Type;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FText DisplayName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	int32 Quantity;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftObjectPtr<UTexture2D> Thumbnail;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftObjectPtr<USkeletalMesh> PickupSkeletalMesh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TSoftObjectPtr<UStaticMesh> PickupStaticMesh;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FItemHoldableData HoldableSettings;
-};
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIDDelegate, FName, NewID);
 
@@ -72,7 +18,6 @@ public:
 	AGHItemBase();
 
 protected:
-	virtual void PostInitializeComponents() override;
 	virtual void BeginPlay() override;
 
 public:	
@@ -127,6 +72,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ID)
 	FName ID;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ID)
+	int32 Quantity = 1;
+
 	UPROPERTY()
 	FIDDelegate OnIDChanged;
 
@@ -135,13 +83,19 @@ protected:
 
 public:
 	void SetID(FName NewID);
+	FORCEINLINE void SetQuantity(int32 NewQuantity) { Quantity = NewQuantity; }
 
 // UI Section
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	TObjectPtr<class UGHItemWidgetComponent> PickupWidgetComp;
 
-// Input Section
+// Pickup Section
 protected:
+	TObjectPtr<class AGHPlayer> Player;
 	struct FEnhancedInputActionValueBinding* PlayerPickupAction;
+
+// Drop Section
+protected:
+	void MoveToPlayerInventory();
 };

@@ -28,5 +28,8 @@ public:
 	TObjectPtr<class UInputAction> IA_SlotNum1;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Input)
-	TObjectPtr<class UInputAction> IA_Pickup;
+	TObjectPtr<class UInputAction> IA_Drop;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Input)
+	TObjectPtr<class UInputAction> IA_Inventory;
 };
