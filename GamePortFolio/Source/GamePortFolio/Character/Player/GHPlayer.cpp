@@ -143,6 +143,9 @@ void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		DropActionValue = &EnhancedInputComp->BindActionValue(PlayerInput->IA_Drop);
 		// Inventory
 		EnhancedInputComp->BindAction(PlayerInput->IA_Inventory, ETriggerEvent::Started, this, &AGHPlayer::IA_Inventory_Started);
+		// Equip
+		EnhancedInputComp->BindAction(PlayerInput->IA_Equip, ETriggerEvent::Started, this, &AGHPlayer::IA_Equip_Started);
+
 	}
 }
 
@@ -190,4 +193,9 @@ void AGHPlayer::IA_SlotNum1_Started(const FInputActionValue& Value)
 void AGHPlayer::IA_Inventory_Started(const FInputActionInstance& Value)
 {
 	Inventory->ReviewInventory();
+}
+
+void AGHPlayer::IA_Equip_Started(const FInputActionInstance& Value)
+{
+	isEquip = isEquip ? false : true;
 }

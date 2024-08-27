@@ -80,4 +80,10 @@ public:
 protected:
 	void IA_Inventory_Started(const FInputActionInstance& Value);
 
+// IA_Equip
+protected:
+	void IA_Equip_Started(const FInputActionInstance& Value);
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equip)
+	bool isEquip = false;
 };

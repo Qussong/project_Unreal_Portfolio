@@ -41,4 +41,10 @@ UGHPlayerInputAction::UGHPlayerInputAction()
 		IA_Inventory = InputActionInventoryRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction>
+		InputActionEquipRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Gihoon/Input/Action/IA_Equip.IA_Equip'"));
+	if (InputActionEquipRef.Succeeded())
+	{
+		IA_Equip = InputActionEquipRef.Object;
+	}
 }
