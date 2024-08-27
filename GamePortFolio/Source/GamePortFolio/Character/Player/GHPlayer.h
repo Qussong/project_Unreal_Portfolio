@@ -54,10 +54,10 @@ protected:
 	void IA_SlotNum1_Started(const FInputActionValue& Value);
 
 // UI Section
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	TSubclassOf<class UGHPlayerWidget> PlayerWidgetClass;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	TObjectPtr<class UGHPlayerWidget> PlayerWidgetInstance;
 
 };

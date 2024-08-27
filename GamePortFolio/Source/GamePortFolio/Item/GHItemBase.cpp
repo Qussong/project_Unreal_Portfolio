@@ -6,8 +6,10 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
 #include "UI/Item/GHItemWidgetComponent.h"
-#include "UI/GHBaseWidget.h"
 #include "Components/SphereComponent.h"
+#include "Character/Player/GHPlayer.h"
+#include "UI/Item/GHPickupWidget.h"
+#include "Components/TextBlock.h"
 
 AGHItemBase::AGHItemBase()
 {
@@ -25,15 +27,16 @@ AGHItemBase::AGHItemBase()
 	ItemSceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("ItemScene"));
 	RootComponent = ItemSceneComp;
 	ItemSceneComp->SetRelativeLocation(FVector(0.f, 0.f, 50.f));
-	ItemSceneComp->SetRelativeScale3D(FVector(0.5f, 0.5f, 0.5f));
 
 	// SkeletalMesh Section
 	ItemSkeletalMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemSkeletalMesh"));
 	ItemSkeletalMeshComp->SetupAttachment(RootComponent);
+	ItemSkeletalMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// StaticMesh Section
 	ItemStaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemStaticMesh"));
 	ItemStaticMeshComp->SetupAttachment(RootComponent);
+	ItemStaticMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// Movement Section
 	RotatingMovementComp = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("RotatingMovement"));
@@ -42,40 +45,46 @@ AGHItemBase::AGHItemBase()
 	// Collision Section
 	ItemCollisionComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollision"));
 	ItemCollisionComp->SetupAttachment(RootComponent);
-	ItemCollisionComp->SetSphereRadius(100.f);
+	ItemCollisionComp->SetSphereRadius(150.f);
 	ItemCollisionComp->SetCollisionProfileName(TEXT("ItemProfile"));
-
-	// ID Section
-	OnIDChanged.AddDynamic(this, &AGHItemBase::HandleIDChanged);
-	ID = FName("Cube");
-	HandleIDChanged(ID);
+	ItemCollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AGHItemBase::OnOverlapBegin);
+	ItemCollisionComp->OnComponentEndOverlap.AddDynamic(this, &AGHItemBase::OnEndOverlap);
 
 	// UI Section
-	PickupWidget = CreateDefaultSubobject<UGHItemWidgetComponent>(TEXT("PickupWidget"));
-	PickupWidget->SetupAttachment(RootComponent);
-	PickupWidget->SetRelativeLocation(FVector(0.f, 0.f, 150.f));
-	static ConstructorHelpers::FClassFinder<UGHBaseWidget>
-		PickupBoardRef(TEXT("/Game/Gihoon/UI/WB_Pickup.WB_Pickup_C"));
-	if (PickupBoardRef.Succeeded())
+	PickupWidgetComp = CreateDefaultSubobject<UGHItemWidgetComponent>(TEXT("PickupWidget"));
+	if(IsValid(PickupWidgetComp))
 	{
-		PickupWidget->SetWidgetClass(PickupBoardRef.Class);
-		PickupWidget->SetWidgetSpace(EWidgetSpace::Screen);
-		PickupWidget->SetDrawAtDesiredSize(true);
-		PickupWidget->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		PickupWidgetComp->SetupAttachment(RootComponent);
+		PickupWidgetComp->SetRelativeLocation(FVector(0.f, 0.f, 150.f));
+		PickupWidgetComp->SetVisibility(false);
+		PickupWidgetComp->SetWidgetSpace(EWidgetSpace::Screen);
+		PickupWidgetComp->SetDrawAtDesiredSize(true);
+		PickupWidgetComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		static ConstructorHelpers::FClassFinder<UGHPickupWidget>
+			PickupBoardRef(TEXT("/Game/Gihoon/UI/WB_Pickup.WB_Pickup_C"));
+		if (PickupBoardRef.Succeeded())
+		{
+			PickupWidgetComp->SetWidgetClass(PickupBoardRef.Class);
+		}
 	}
 		
+	// ID Section
+	//ID = FName("Cube");
+	ID = FName("Sword");
+	OnIDChanged.AddDynamic(this, &AGHItemBase::HandleIDChanged);
 }
 
 void AGHItemBase::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-
 }
 
 void AGHItemBase::BeginPlay()
 {
 	Super::BeginPlay();
 
+	HandleIDChanged(ID);
 }
 
 void AGHItemBase::Tick(float DeltaTime)
@@ -95,7 +104,7 @@ void AGHItemBase::SetID(FName NewID)
 
 void AGHItemBase::HandleIDChanged(FName NewID)
 {
-	FItemInventoryData* ItemData = ItemDataTable->FindRow<FItemInventoryData>(NewID, TEXT(""));
+	ItemData = ItemDataTable->FindRow<FItemInventoryData>(NewID, TEXT(""));
 	if (nullptr == ItemData) return;
 
 	// Skeletal Mesh Section
@@ -104,17 +113,62 @@ void AGHItemBase::HandleIDChanged(FName NewID)
 	{
 		ItemSkeletalMeshComp->SetSkeletalMesh(ItemSkeletalMesh);
 	}
-		
+
 	// Static Mesh Section
 	UStaticMesh* ItemStaticMesh = (ItemData->PickupStaticMesh).LoadSynchronous();
 	if (IsValid(ItemStaticMesh))
 	{
 		ItemStaticMeshComp->SetStaticMesh(ItemStaticMesh);
 	}
+
+	// UI Section
+	UUserWidget* Widget = PickupWidgetComp->GetWidget();
+	if (IsValid(Widget))
+	{
+		UGHPickupWidget* PickupWidget = Cast<UGHPickupWidget>(Widget);
+		if (IsValid(PickupWidget))
+		{
+			UTextBlock* TextBlock = Cast<UTextBlock>(PickupWidget->GetWidgetFromName(TEXT("ItemName")));
+			if (IsValid(TextBlock))
+			{
+				TextBlock->SetText(ItemData->DisplayName);
+			}
+		}
+	}
+
+	// Custom Section
+	if (FText::FromName(FName("Sword Item")).EqualTo(ItemData->DisplayName))
+	{
+		ItemStaticMeshComp->SetRelativeScale3D(FVector(1.5f, 1.5f, 1.5f));
+		ItemStaticMeshComp->SetRelativeLocation(FVector(0.f, 60.f, 70.f));
+		ItemStaticMeshComp->SetRelativeRotation(FRotator(0.f, 0.f, 50.f));
+	}
+	if (FText::FromName(FName("Cube Item")).EqualTo(ItemData->DisplayName))
+	{
+		ItemStaticMeshComp->SetRelativeScale3D(FVector(.5f, .5f, .5f));
+	}
 }
 
-//void AGHItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-//{
-//
-//}
+void AGHItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	ACharacter* Character = Cast<ACharacter>(OtherActor);
+	AGHPlayer* Player = Cast<AGHPlayer>(Character);
+	if (IsValid(Player))
+	{
+		PickupWidgetComp->SetVisibility(true);
+	}
 
+	UE_LOG(LogTemp, Log, TEXT("Item Begin Overlap"));
+}
+
+void AGHItemBase::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	ACharacter* Character = Cast<ACharacter>(OtherActor);
+	AGHPlayer* Player = Cast<AGHPlayer>(Character);
+	if (IsValid(Player))
+	{
+		PickupWidgetComp->SetVisibility(false);
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("Item End Overlap"));
+}
