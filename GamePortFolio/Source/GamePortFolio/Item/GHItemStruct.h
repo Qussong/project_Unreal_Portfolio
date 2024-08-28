@@ -11,7 +11,7 @@ enum class EItemInventoryType
 	POTION,
 	SCROLL,
 	WEAPON,
-	CLOTH,
+	ARMOR,
 	ETC,
 };
 
@@ -20,9 +20,9 @@ struct FItemHoldableData : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	public:
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<AActor> Equipper;
+	TSubclassOf<AActor> EquipmentClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName SocketName;
@@ -36,7 +36,7 @@ struct FItemInventoryData : public FTableRowBase
 {
 	GENERATED_BODY()
 
-	public:
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FName ID;
 	

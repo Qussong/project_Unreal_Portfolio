@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Item/GHItemBase.h"
+#include "Item/Pickup/GHPickupItem.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/RotatingMovementComponent.h"
@@ -13,7 +13,7 @@
 #include "EnhancedInputComponent.h"
 #include "Component/Inventory/GHInventoryComponent.h"
 
-AGHItemBase::AGHItemBase()
+AGHPickupItem::AGHPickupItem()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -26,19 +26,7 @@ AGHItemBase::AGHItemBase()
 	}
 
 	// Scene Section
-	ItemSceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("ItemScene"));
-	RootComponent = ItemSceneComp;
 	ItemSceneComp->SetRelativeLocation(FVector(0.f, 0.f, 50.f));
-
-	// SkeletalMesh Section
-	ItemSkeletalMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("ItemSkeletalMesh"));
-	ItemSkeletalMeshComp->SetupAttachment(RootComponent);
-	ItemSkeletalMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	// StaticMesh Section
-	ItemStaticMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemStaticMesh"));
-	ItemStaticMeshComp->SetupAttachment(RootComponent);
-	ItemStaticMeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// Movement Section
 	RotatingMovementComp = CreateDefaultSubobject<URotatingMovementComponent>(TEXT("RotatingMovement"));
@@ -49,8 +37,8 @@ AGHItemBase::AGHItemBase()
 	ItemCollisionComp->SetupAttachment(RootComponent);
 	ItemCollisionComp->SetSphereRadius(150.f);
 	ItemCollisionComp->SetCollisionProfileName(TEXT("ItemProfile"));
-	ItemCollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AGHItemBase::OnOverlapBegin);
-	ItemCollisionComp->OnComponentEndOverlap.AddDynamic(this, &AGHItemBase::OnEndOverlap);
+	ItemCollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AGHPickupItem::OnOverlapBegin);
+	ItemCollisionComp->OnComponentEndOverlap.AddDynamic(this, &AGHPickupItem::OnEndOverlap);
 
 	// UI Section
 	PickupWidgetComp = CreateDefaultSubobject<UGHItemWidgetComponent>(TEXT("PickupWidget"));
@@ -73,24 +61,24 @@ AGHItemBase::AGHItemBase()
 		
 	// ID Section
 	ID = FName("Cube");
-	OnIDChanged.AddDynamic(this, &AGHItemBase::HandleIDChanged);
+	OnIDChanged.AddDynamic(this, &AGHPickupItem::HandleIDChanged);
 }
 
-void AGHItemBase::BeginPlay()
+void AGHPickupItem::BeginPlay()
 {
 	Super::BeginPlay();
 
 	HandleIDChanged(ID);
 }
 
-void AGHItemBase::Tick(float DeltaTime)
+void AGHPickupItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 	MoveToPlayerInventory();
 }
 
-void AGHItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AGHPickupItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	ACharacter* CollideCharacter = Cast<ACharacter>(OtherActor);
 	Player = Cast<AGHPlayer>(CollideCharacter);
@@ -102,7 +90,7 @@ void AGHItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActo
 
 }
 
-void AGHItemBase::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+void AGHPickupItem::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if (IsValid(Player))
 	{
@@ -113,7 +101,7 @@ void AGHItemBase::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 
 }
 
-void AGHItemBase::HandleIDChanged(FName NewID)
+void AGHPickupItem::HandleIDChanged(FName NewID)
 {
 	ItemData = ItemDataTable->FindRow<FItemInventoryData>(NewID, TEXT(""));
 	if (nullptr == ItemData) return;
@@ -160,7 +148,7 @@ void AGHItemBase::HandleIDChanged(FName NewID)
 	}
 }
 
-void AGHItemBase::SetID(FName NewID)
+void AGHPickupItem::SetID(FName NewID)
 {
 	if (ID != NewID)
 	{
@@ -169,7 +157,7 @@ void AGHItemBase::SetID(FName NewID)
 	}
 }
 
-void AGHItemBase::MoveToPlayerInventory()
+void AGHPickupItem::MoveToPlayerInventory()
 {
 	if (PlayerPickupAction)
 	{

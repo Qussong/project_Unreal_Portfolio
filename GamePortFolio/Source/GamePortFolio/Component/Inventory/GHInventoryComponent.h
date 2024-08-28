@@ -40,4 +40,12 @@ private:
 // Inventory Check Section
 public:
 	void ReviewInventory();
+
+// Weapon Section
+public:
+	bool ArmedWeapon(FName ID);
+	bool DisArmedWeapon();
+private:
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UChildActorComponent> NewChildActorComp;
 };

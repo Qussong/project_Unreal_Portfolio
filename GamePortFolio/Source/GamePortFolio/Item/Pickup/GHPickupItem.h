@@ -3,19 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
+#include "Item/GHBaseItem.h"
 #include "Item/GHItemStruct.h"
-#include "GHItemBase.generated.h"
+#include "GHPickupItem.generated.h"
 
+// ID 변경시 바인딩된 함수 호출
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FIDDelegate, FName, NewID);
 
 UCLASS()
-class GAMEPORTFOLIO_API AGHItemBase : public AActor
+class GAMEPORTFOLIO_API AGHPickupItem : public AGHBaseItem
 {
 	GENERATED_BODY()
 	
 public:	
-	AGHItemBase();
+	AGHPickupItem();
 
 protected:
 	virtual void BeginPlay() override;
@@ -30,19 +31,6 @@ protected:
 
 	FItemInventoryData* ItemData;
 
-// Scene Comp Section
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Scene)
-	TObjectPtr<USceneComponent> ItemSceneComp;
-
-// Mesh Comp Section
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
-	TObjectPtr<class USkeletalMeshComponent> ItemSkeletalMeshComp;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
-	TObjectPtr<class UStaticMeshComponent> ItemStaticMeshComp;
-
 // Movement Comp Section
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Move)
@@ -53,6 +41,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = SphereCollision)
 	TObjectPtr<class USphereComponent> ItemCollisionComp;
 
+protected:
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent,
 						AActor* OtherActor,

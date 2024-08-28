@@ -3,6 +3,7 @@
 
 #include "Component/Inventory/GHInventoryComponent.h"
 #include "Character/Player/GHPlayer.h"
+#include "Components/ChildActorComponent.h"
 
 UGHInventoryComponent::UGHInventoryComponent()
 {
@@ -67,10 +68,64 @@ void UGHInventoryComponent::ReviewInventory()
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("===================="));
 	for (const TPair<FName, FItemInventoryData>& Item : Items)
 	{
-		FName ID = Item.Value.ID;
+		FText Name = Item.Value.DisplayName;
 		int32 Quantity = Item.Value.Quantity;
 
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, FString::Printf(TEXT("%s : %d"), *ID.ToString(), Quantity));
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, FString::Printf(TEXT("%s : %d"), *Name.ToString(), Quantity));
 	}
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("==== Inventory List ===="));
+}
+
+bool UGHInventoryComponent::ArmedWeapon(FName ID)
+{
+	FItemInventoryData* ItemData = Items.Find(ID);
+	if (nullptr == ItemData) return false;
+
+	FItemHoldableData HoldableData = ItemData->HoldableSettings;
+	if (nullptr == HoldableData.EquipmentClass) return false;
+
+	if (nullptr == NewChildActorComp)
+	{
+		NewChildActorComp = NewObject<UChildActorComponent>(this, UChildActorComponent::StaticClass(), TEXT("DynamicChildActorComp"));
+		if (nullptr == NewChildActorComp) return false;
+
+		// 생성된 컴포넌트를 월드에 등록
+		NewChildActorComp->RegisterComponent();
+		// 부모 컴포넌트(SkeletalMesh)에 부착
+		NewChildActorComp->AttachToComponent(Cast<ACharacter>(GetOwner())->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, HoldableData.SocketName);
+		// Child Actor Class 설정
+		NewChildActorComp->SetChildActorClass(HoldableData.EquipmentClass);
+		// 초기 트랜스폼 설정
+		NewChildActorComp->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+
+		// 생성된 Child Actor에 접근해서 로직을 추가
+		AActor* SpawnedChildActor = Cast<AActor>(NewChildActorComp->GetChildActor());
+		if (SpawnedChildActor)
+		{
+			if (nullptr != ItemData->PickupStaticMesh)
+			{
+				//SpawnedChildActor->GetMesh()
+			}
+		}
+
+		return true;
+	}
+	else
+	{
+		NewChildActorComp->RegisterComponent();
+		return true;
+	}
+
+	return false;
+}
+
+bool UGHInventoryComponent::DisArmedWeapon()
+{
+	if (IsValid(NewChildActorComp))
+	{
+		NewChildActorComp->UnregisterComponent();
+		return true;
+	}
+
+	return false;
 }
