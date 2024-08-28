@@ -199,12 +199,22 @@ void AGHPlayer::IA_Equip_Started(const FInputActionInstance& Value)
 {
 	if (!isEquip)
 	{
-		if (Inventory->ArmedWeapon(FName("Sword")))
+		if (Inventory->Armed(FName("Sword")))
+		{
 			isEquip = true;
+			isCombat = true;
+		}
 	}
 	else
 	{
-		if (Inventory->DisArmedWeapon())
+		if (Inventory->DisArmed())
+		{
 			isEquip = false;
+			isCombat = false;
+		}
 	}
+}
+
+void AGHPlayer::IA_Combat_Started(const FInputActionInstance& Value)
+{
 }

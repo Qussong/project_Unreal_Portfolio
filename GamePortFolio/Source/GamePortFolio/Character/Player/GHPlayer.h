@@ -86,4 +86,13 @@ protected:
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equip)
 	bool isEquip = false;
+
+// IA_Combat
+protected:
+	// IA_Equip
+protected:
+	void IA_Combat_Started(const FInputActionInstance& Value);
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
+	bool isCombat = false;
 };

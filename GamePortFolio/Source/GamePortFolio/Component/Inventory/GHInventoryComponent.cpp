@@ -4,6 +4,7 @@
 #include "Component/Inventory/GHInventoryComponent.h"
 #include "Character/Player/GHPlayer.h"
 #include "Components/ChildActorComponent.h"
+#include "Item/GHBaseItem.h"
 
 UGHInventoryComponent::UGHInventoryComponent()
 {
@@ -76,7 +77,7 @@ void UGHInventoryComponent::ReviewInventory()
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("==== Inventory List ===="));
 }
 
-bool UGHInventoryComponent::ArmedWeapon(FName ID)
+bool UGHInventoryComponent::Armed(FName ID)
 {
 	FItemInventoryData* ItemData = Items.Find(ID);
 	if (nullptr == ItemData) return false;
@@ -84,27 +85,33 @@ bool UGHInventoryComponent::ArmedWeapon(FName ID)
 	FItemHoldableData HoldableData = ItemData->HoldableSettings;
 	if (nullptr == HoldableData.EquipmentClass) return false;
 
-	if (nullptr == NewChildActorComp)
+	if (nullptr == EquipmentComp)
 	{
-		NewChildActorComp = NewObject<UChildActorComponent>(this, UChildActorComponent::StaticClass(), TEXT("DynamicChildActorComp"));
-		if (nullptr == NewChildActorComp) return false;
+		EquipmentComp = NewObject<UChildActorComponent>(this, UChildActorComponent::StaticClass(), TEXT("DynamicChildActorComp"));
+		if (nullptr == EquipmentComp) return false;
 
 		// 생성된 컴포넌트를 월드에 등록
-		NewChildActorComp->RegisterComponent();
+		EquipmentComp->RegisterComponent();
 		// 부모 컴포넌트(SkeletalMesh)에 부착
-		NewChildActorComp->AttachToComponent(Cast<ACharacter>(GetOwner())->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, HoldableData.SocketName);
+		EquipmentComp->AttachToComponent(Cast<ACharacter>(GetOwner())->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, HoldableData.SocketName);
 		// Child Actor Class 설정
-		NewChildActorComp->SetChildActorClass(HoldableData.EquipmentClass);
+		EquipmentComp->SetChildActorClass(HoldableData.EquipmentClass);
 		// 초기 트랜스폼 설정
-		NewChildActorComp->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+		EquipmentComp->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
 
 		// 생성된 Child Actor에 접근해서 로직을 추가
-		AActor* SpawnedChildActor = Cast<AActor>(NewChildActorComp->GetChildActor());
+		AActor* SpawnedChildActor = Cast<AActor>(EquipmentComp->GetChildActor());
 		if (SpawnedChildActor)
 		{
 			if (nullptr != ItemData->PickupStaticMesh)
 			{
-				//SpawnedChildActor->GetMesh()
+				USkeletalMeshComponent* SkeletalMeshComp = Cast<AGHBaseItem>(SpawnedChildActor)->GetItemSkeletalMeshComp();
+				if (IsValid(SkeletalMeshComp))
+					SkeletalMeshComp->SetSkeletalMesh(ItemData->PickupSkeletalMesh.Get());
+
+				UStaticMeshComponent* StaticMeshComp = Cast<AGHBaseItem>(SpawnedChildActor)->GetItemStaticMeshComp();
+				if (IsValid(StaticMeshComp))
+					StaticMeshComp->SetStaticMesh(ItemData->PickupStaticMesh.Get());
 			}
 		}
 
@@ -112,18 +119,18 @@ bool UGHInventoryComponent::ArmedWeapon(FName ID)
 	}
 	else
 	{
-		NewChildActorComp->RegisterComponent();
+		EquipmentComp->RegisterComponent();
 		return true;
 	}
 
 	return false;
 }
 
-bool UGHInventoryComponent::DisArmedWeapon()
+bool UGHInventoryComponent::DisArmed()
 {
-	if (IsValid(NewChildActorComp))
+	if (IsValid(EquipmentComp))
 	{
-		NewChildActorComp->UnregisterComponent();
+		EquipmentComp->UnregisterComponent();
 		return true;
 	}
 

@@ -43,9 +43,10 @@ public:
 
 // Weapon Section
 public:
-	bool ArmedWeapon(FName ID);
-	bool DisArmedWeapon();
+	bool Armed(FName ID);
+	bool DisArmed();
 private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UChildActorComponent> NewChildActorComp;
+	TObjectPtr<UChildActorComponent> EquipmentComp;
+
 };

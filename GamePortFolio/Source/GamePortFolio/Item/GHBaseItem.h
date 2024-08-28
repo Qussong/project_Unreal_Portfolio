@@ -32,5 +32,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Mesh)
 	TObjectPtr<class UStaticMeshComponent> ItemStaticMeshComp;
+public:
+	FORCEINLINE USkeletalMeshComponent* GetItemSkeletalMeshComp() { return ItemSkeletalMeshComp; }
+	FORCEINLINE UStaticMeshComponent* GetItemStaticMeshComp() { return ItemStaticMeshComp; }
 
 };
