@@ -51,3 +51,15 @@ void AGHPlayerController::MoveTo()
 		LoadObject<UNiagaraSystem>(nullptr, TEXT("/Script/Niagara.NiagaraSystem'/Game/Gihoon/VFX/Cursor/FX_Cursor.FX_Cursor'"));
 	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), NiagaraSystem, Destination);
 }
+
+void AGHPlayerController::Rotate()
+{
+	FVector From = GetPawn()->GetActorLocation();
+	FVector To = Destination;
+	FVector Direction = (To - From).GetSafeNormal();
+	FRotator TargetRotation = Direction.Rotation();
+
+	GetPawn()->SetActorRotation(FRotator(0.f, TargetRotation.Yaw, 0.f));
+
+	UE_LOG(LogTemp, Log, TEXT("The float value is: %s"), *TargetRotation.ToString());
+}

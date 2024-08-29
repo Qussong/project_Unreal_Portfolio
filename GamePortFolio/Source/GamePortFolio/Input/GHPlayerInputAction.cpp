@@ -47,4 +47,11 @@ UGHPlayerInputAction::UGHPlayerInputAction()
 	{
 		IA_Equip = InputActionEquipRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction>
+		InputActionNormalAttackRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Gihoon/Input/Action/IA_NormalAttack.IA_NormalAttack'"));
+	if (InputActionNormalAttackRef.Succeeded())
+	{
+		IA_NormalAttack = InputActionNormalAttackRef.Object;
+	}
 }

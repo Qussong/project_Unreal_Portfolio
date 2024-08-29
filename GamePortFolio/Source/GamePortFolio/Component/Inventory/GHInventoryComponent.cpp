@@ -152,6 +152,7 @@ bool UGHInventoryComponent::SetEquipChildComp(FItemInventoryData* ItemData)
 		UStaticMeshComponent* StaticMeshComp = Cast<AGHBaseItem>(SpawnedChildActor)->GetItemStaticMeshComp();
 		if (IsValid(StaticMeshComp))
 			StaticMeshComp->SetStaticMesh(ItemData->PickupStaticMesh.Get());
+
 	}
 
 	return true;

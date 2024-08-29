@@ -39,4 +39,8 @@ public:
 	void Follow();
 	void MoveTo();
 
+// IA_NormalAttack Section
+public:
+	void Rotate();
+
 };

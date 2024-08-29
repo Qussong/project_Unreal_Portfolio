@@ -15,6 +15,7 @@
 #include "Components/ProgressBar.h"
 #include "Stat/Player/GHPlayerStatComponent.h"
 #include "Component/Inventory/GHInventoryComponent.h"
+#include "Animation/Player/GHPlayerAnim.h"
 
 AGHPlayer::AGHPlayer()
 {
@@ -86,6 +87,21 @@ void AGHPlayer::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
+}
+
+void AGHPlayer::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// IMC Section
+	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
+	UEnhancedInputLocalPlayerSubsystem* Subsystem =
+		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+	if (IsValid(Subsystem))
+	{
+		Subsystem->AddMappingContext(IMC, 0);
+	}
+
 	// UI Section
 	if (IsValid(PlayerWidgetClass))
 	{
@@ -101,20 +117,9 @@ void AGHPlayer::PostInitializeComponents()
 			PlayerWidgetInstance->GetEXPBar()->SetPercent(PlayerStat->GetCurrentEXP() / PlayerStat->GetMaxEXP());
 		}
 	}
-}
 
-void AGHPlayer::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// IMC Section
-	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
-	UEnhancedInputLocalPlayerSubsystem* Subsystem =
-		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-	if (IsValid(Subsystem))
-	{
-		Subsystem->AddMappingContext(IMC, 0);
-	}
+	// Anim Section
+	Anim = Cast<UGHPlayerAnim>(GetMesh()->GetAnimInstance());
 
 }
 
@@ -145,7 +150,8 @@ void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComp->BindAction(PlayerInput->IA_Inventory, ETriggerEvent::Started, this, &AGHPlayer::IA_Inventory_Started);
 		// Equip
 		EnhancedInputComp->BindAction(PlayerInput->IA_Equip, ETriggerEvent::Started, this, &AGHPlayer::IA_Equip_Started);
-
+		// Noraml Attack
+		EnhancedInputComp->BindAction(PlayerInput->IA_NormalAttack, ETriggerEvent::Started, this, &AGHPlayer::IA_NormalAttack_Started);
 	}
 }
 
@@ -190,12 +196,13 @@ void AGHPlayer::IA_SlotNum1_Started(const FInputActionValue& Value)
 	UE_LOG(LogTemp, Log, TEXT("Slot Num1"));
 }
 
-void AGHPlayer::IA_Inventory_Started(const FInputActionInstance& Value)
+
+void AGHPlayer::IA_Inventory_Started(const FInputActionValue& Value)
 {
 	Inventory->ReviewInventory();
 }
 
-void AGHPlayer::IA_Equip_Started(const FInputActionInstance& Value)
+void AGHPlayer::IA_Equip_Started(const FInputActionValue& Value)
 {
 	if (!isEquip)
 	{
@@ -215,6 +222,14 @@ void AGHPlayer::IA_Equip_Started(const FInputActionInstance& Value)
 	}
 }
 
-void AGHPlayer::IA_Combat_Started(const FInputActionInstance& Value)
+void AGHPlayer::IA_NormalAttack_Started(const FInputActionValue& Value)
 {
+	// 장비 장착여부 확인
+	if (isEquip)
+	{
+		isCombat = true;
+
+		// 공격 애니메이션 재생
+		Anim->PlayNormalAttackMontage();
+	}
 }

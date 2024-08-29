@@ -35,4 +35,7 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<class UInputAction> IA_Equip;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Input)
+	TObjectPtr<class UInputAction> IA_NormalAttack;
 };

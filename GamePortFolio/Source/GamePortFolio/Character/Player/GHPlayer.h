@@ -27,6 +27,11 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+// Anim Section
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Anim)
+	TObjectPtr<class UGHPlayerAnim> Anim;
+
 // Camera Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
@@ -78,21 +83,19 @@ public:
 
 // IA_Inventory
 protected:
-	void IA_Inventory_Started(const FInputActionInstance& Value);
+	void IA_Inventory_Started(const FInputActionValue& Value);
 
 // IA_Equip
 protected:
-	void IA_Equip_Started(const FInputActionInstance& Value);
+	void IA_Equip_Started(const FInputActionValue& Value);
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equip)
-	bool isEquip = false;
-
-// IA_Combat
-protected:
-	// IA_Equip
-protected:
-	void IA_Combat_Started(const FInputActionInstance& Value);
-public:
+	bool isEquip = false;	// 무기 장착 여부
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
-	bool isCombat = false;
+	bool isCombat = false;	// 전투 상태 여부
+
+// IA_Normal Attack
+protected:
+	void IA_NormalAttack_Started(const FInputActionValue& Value);
+
 };
