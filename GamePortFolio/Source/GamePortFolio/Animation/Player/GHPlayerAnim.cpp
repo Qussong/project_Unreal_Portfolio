@@ -4,6 +4,7 @@
 #include "Animation/Player/GHPlayerAnim.h"
 #include "Character/Player/GHPlayer.h"
 #include "Controller/GHPlayerController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 UGHPlayerAnim::UGHPlayerAnim()
 {
@@ -15,18 +16,19 @@ void UGHPlayerAnim::NativeInitializeAnimation()
 
 }
 
-void UGHPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
-{
-	Super::NativeUpdateAnimation(DeltaSeconds);
-
-}
-
 void UGHPlayerAnim::NativeBeginPlay()
 {
 	Super::NativeBeginPlay();
 
 	Owner = Cast<AGHPlayer>(TryGetPawnOwner());
 }
+
+void UGHPlayerAnim::NativeUpdateAnimation(float DeltaSeconds)
+{
+	Super::NativeUpdateAnimation(DeltaSeconds);
+
+}
+
 
 void UGHPlayerAnim::PlayNormalAttackMontage()
 {
@@ -35,6 +37,9 @@ void UGHPlayerAnim::PlayNormalAttackMontage()
 
 	// 몽타주 재생중인지 확인
 	if (Montage_IsPlaying(NormalAttackMontage)) return;
+
+	// 플레이어 이동 중지
+	Owner->GetCharacterMovement()->StopMovementImmediately();
 
 	// 방향 설정
 	Cast<AGHPlayerController>(Owner->GetController())->GetLocationUnderCursor();	// 마우스의 월드상의 위치 확인

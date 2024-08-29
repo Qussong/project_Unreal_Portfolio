@@ -19,8 +19,8 @@ public:
 
 public:
 	virtual void NativeInitializeAnimation() override;					// 초기화
-	virtual void NativeUpdateAnimation(float DeltaSeconds) override;	// 매 프레임 업데이트
 	virtual void NativeBeginPlay() override;							// ABP 실제로 시작될 떄 한번 호출
+	virtual void NativeUpdateAnimation(float DeltaSeconds) override;	// 매 프레임 업데이트
 
 // Owner Section
 protected:
