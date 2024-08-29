@@ -46,7 +46,10 @@ public:
 	bool Armed(FName ID);
 	bool DisArmed();
 private:
+	bool CreateEquipmentComp(FItemHoldableData& HoldableData);	// Child Actor Comp 积己
+	bool SetEquipChildComp(FItemInventoryData* ItemData);		// 积己等 Child Actor Comp 狼 Actor 汲沥
+private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<UChildActorComponent> EquipmentComp;
+	TObjectPtr<UChildActorComponent> EquipChildComp;
 
 };

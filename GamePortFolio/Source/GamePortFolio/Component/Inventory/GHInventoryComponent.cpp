@@ -79,60 +79,80 @@ void UGHInventoryComponent::ReviewInventory()
 
 bool UGHInventoryComponent::Armed(FName ID)
 {
+	// DataTable 로 부터 ID 에 해당하는 정보 얻어옴
 	FItemInventoryData* ItemData = Items.Find(ID);
 	if (nullptr == ItemData) return false;
 
+	// Data 로 부터 장착과 관련된 정보 얻어옴
 	FItemHoldableData HoldableData = ItemData->HoldableSettings;
 	if (nullptr == HoldableData.EquipmentClass) return false;
 
-	if (nullptr == EquipmentComp)
+	// Child Actor Component 가 생성되어 있지 않다면
+	if (nullptr == EquipChildComp)
 	{
-		EquipmentComp = NewObject<UChildActorComponent>(this, UChildActorComponent::StaticClass(), TEXT("DynamicChildActorComp"));
-		if (nullptr == EquipmentComp) return false;
+		if(false == CreateEquipmentComp(HoldableData))
+			return false;
 
-		// 생성된 컴포넌트를 월드에 등록
-		EquipmentComp->RegisterComponent();
-		// 부모 컴포넌트(SkeletalMesh)에 부착
-		EquipmentComp->AttachToComponent(Cast<ACharacter>(GetOwner())->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, HoldableData.SocketName);
-		// Child Actor Class 설정
-		EquipmentComp->SetChildActorClass(HoldableData.EquipmentClass);
-		// 초기 트랜스폼 설정
-		EquipmentComp->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
-
-		// 생성된 Child Actor에 접근해서 로직을 추가
-		AActor* SpawnedChildActor = Cast<AActor>(EquipmentComp->GetChildActor());
-		if (SpawnedChildActor)
-		{
-			if (nullptr != ItemData->PickupStaticMesh)
-			{
-				USkeletalMeshComponent* SkeletalMeshComp = Cast<AGHBaseItem>(SpawnedChildActor)->GetItemSkeletalMeshComp();
-				if (IsValid(SkeletalMeshComp))
-					SkeletalMeshComp->SetSkeletalMesh(ItemData->PickupSkeletalMesh.Get());
-
-				UStaticMeshComponent* StaticMeshComp = Cast<AGHBaseItem>(SpawnedChildActor)->GetItemStaticMeshComp();
-				if (IsValid(StaticMeshComp))
-					StaticMeshComp->SetStaticMesh(ItemData->PickupStaticMesh.Get());
-			}
-		}
-
-		return true;
+		if (false == SetEquipChildComp(ItemData))
+			return false;
 	}
+	// Child Actor Component 가 생성되어 있다면
 	else
 	{
-		EquipmentComp->RegisterComponent();
+		// 생성된 Child Actor Component 를 월드에 등록
+		EquipChildComp->RegisterComponent();
+	}
+
+	return true;
+}
+
+bool UGHInventoryComponent::DisArmed()
+{
+	if (IsValid(EquipChildComp))
+	{
+		EquipChildComp->UnregisterComponent();
 		return true;
 	}
 
 	return false;
 }
 
-bool UGHInventoryComponent::DisArmed()
+bool UGHInventoryComponent::CreateEquipmentComp(FItemHoldableData& HoldableData)
 {
-	if (IsValid(EquipmentComp))
+	// Child Actor Component 생성
+	EquipChildComp = NewObject<UChildActorComponent>(this, UChildActorComponent::StaticClass(), TEXT("DynamicChildActorComp"));
+	if (nullptr == EquipChildComp) return false;
+
+	// 부모 컴포넌트(SkeletalMesh)에 부착
+	EquipChildComp->AttachToComponent(Cast<ACharacter>(GetOwner())->GetMesh(), FAttachmentTransformRules::KeepRelativeTransform, HoldableData.SocketName);
+	// Child Actor Class 설정
+	EquipChildComp->SetChildActorClass(HoldableData.EquipmentClass);
+	// 초기 트랜스폼 설정
+	EquipChildComp->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+	// 생성된 Child Actor Component 를 월드에 등록
+	EquipChildComp->RegisterComponent();
+
+	return true;
+}
+
+bool UGHInventoryComponent::SetEquipChildComp(FItemInventoryData* ItemData)
+{
+	// 생성된 Child Actor에 접근
+	AActor* SpawnedChildActor = Cast<AActor>(EquipChildComp->GetChildActor());
+	if (nullptr == SpawnedChildActor) return false;
+
+	if (nullptr != ItemData->PickupStaticMesh)
 	{
-		EquipmentComp->UnregisterComponent();
-		return true;
+		// Skeletal Mesh
+		USkeletalMeshComponent* SkeletalMeshComp = Cast<AGHBaseItem>(SpawnedChildActor)->GetItemSkeletalMeshComp();
+		if (IsValid(SkeletalMeshComp))
+			SkeletalMeshComp->SetSkeletalMesh(ItemData->PickupSkeletalMesh.Get());
+
+		// Static Mesh
+		UStaticMeshComponent* StaticMeshComp = Cast<AGHBaseItem>(SpawnedChildActor)->GetItemStaticMeshComp();
+		if (IsValid(StaticMeshComp))
+			StaticMeshComp->SetStaticMesh(ItemData->PickupStaticMesh.Get());
 	}
 
-	return false;
+	return true;
 }
