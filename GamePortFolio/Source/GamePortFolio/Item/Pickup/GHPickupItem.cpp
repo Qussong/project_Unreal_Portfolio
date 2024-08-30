@@ -106,6 +106,9 @@ void AGHPickupItem::HandleIDChanged(FName NewID)
 	ItemData = ItemDataTable->FindRow<FItemInventoryData>(NewID, TEXT(""));
 	if (nullptr == ItemData) return;
 
+	// Item Type
+	ItemType = ItemData->Type;
+
 	// Skeletal Mesh Section
 	USkeletalMesh* ItemSkeletalMesh = (ItemData->PickupSkeletalMesh).LoadSynchronous();
 	if (IsValid(ItemSkeletalMesh))
@@ -159,12 +162,15 @@ void AGHPickupItem::SetID(FName NewID)
 
 void AGHPickupItem::MoveToPlayerInventory()
 {
+	// Player 입력이 유효한 경우
 	if (PlayerPickupAction)
 	{
+		// 플레이어가 Item Drop 을 시도한 경우
 		if (PlayerPickupAction->GetValue().Get<bool>())
 		{
+			// 플레이어의 인벤토리에 대한 정보를 얻어온후 아이템을 넣어준다.
 			UGHInventoryComponent* Inventory = Player->GetInventory();
-			bool isDrop = Inventory->Drop(ID, Quantity);
+			bool isDrop = Inventory->Drop(ID, ItemType, Quantity);
 
 			if (isDrop)
 			{

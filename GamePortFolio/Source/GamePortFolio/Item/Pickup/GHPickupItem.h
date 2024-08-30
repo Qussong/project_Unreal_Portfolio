@@ -58,11 +58,14 @@ protected:
 
 // ID Section
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ID)
-	FName ID;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	FName ID;	// 아이디
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = ID)
-	int32 Quantity = 1;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	int32 Quantity = 1;	// 수량
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Data)
+	EItemInventoryType ItemType;	// 타입
 
 	UPROPERTY()
 	FIDDelegate OnIDChanged;

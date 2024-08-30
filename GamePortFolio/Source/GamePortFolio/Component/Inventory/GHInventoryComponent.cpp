@@ -17,11 +17,9 @@ UGHInventoryComponent::UGHInventoryComponent()
 	}
 }
 
-bool UGHInventoryComponent::Drop(FName ID, int32 Quantity)
+bool UGHInventoryComponent::Drop(FName ID, EItemInventoryType ItenType, int32 Quantity)
 {
-	AActor* OwnweActor = GetOwner();
-	AGHPlayer* Player = Cast<AGHPlayer>(OwnweActor);
-
+	// Data Table 에 해당 아이템에 대한 정보가 존재하는지 확인 및 수량 설정
 	if (!CheckItemExist(ID, Quantity)) return false;
 
 	FItemInventoryData* Item = Items.Find(ID);
@@ -36,6 +34,14 @@ bool UGHInventoryComponent::Drop(FName ID, int32 Quantity)
 	{
 		// 처음 습득하는 경우
 		Items.Add(ID, DropItem);
+	}
+
+	// 장비 타입 아이템을 얻게되면 플레이어에 해당 정보 넘겨줌
+	if (ItenType == EItemInventoryType::ARMOR
+		|| ItenType == EItemInventoryType::WEAPON)
+
+	{
+		Cast<AGHPlayer>(GetOwner())->AddChildActorMap(ID, nullptr);
 	}
 
 	// 획득 아이템 정보 초기화
@@ -87,30 +93,40 @@ bool UGHInventoryComponent::Armed(FName ID)
 	FItemHoldableData HoldableData = ItemData->HoldableSettings;
 	if (nullptr == HoldableData.EquipmentClass) return false;
 
-	// Child Actor Component 가 생성되어 있지 않다면
+	EquipChildComp = Cast<AGHPlayer>(GetOwner())->FindChildActorMap(ID);
+	// ID에 해당하는 Child Actor Comp 가 Player에 저장되어 있지 않은경우
 	if (nullptr == EquipChildComp)
 	{
-		if(false == CreateEquipmentComp(HoldableData))
+		if (false == CreateEquipmentComp(HoldableData))
 			return false;
 
 		if (false == SetEquipChildComp(ItemData))
 			return false;
+
+		// Player 에 추가된 ChildActorComp 에 대한 정보 저장
+		Cast<AGHPlayer>(GetOwner())->AddChildActorMap(ID, EquipChildComp);
 	}
-	// Child Actor Component 가 생성되어 있다면
+	// ID에 해당하는 Child Actor Comp 가 Player에 저장되어 있는 경우
 	else
 	{
 		// 생성된 Child Actor Component 를 월드에 등록
 		EquipChildComp->RegisterComponent();
 	}
 
+	// ID 에 해당하는 Child Actor Comp 에 대한 작업을 마쳤기에 비워줌
+	EquipChildComp = nullptr;
+
 	return true;
 }
 
-bool UGHInventoryComponent::DisArmed()
+bool UGHInventoryComponent::DisArmed(FName ID)
 {
+	EquipChildComp = Cast<AGHPlayer>(GetOwner())->FindChildActorMap(ID);
 	if (IsValid(EquipChildComp))
 	{
 		EquipChildComp->UnregisterComponent();
+		EquipChildComp = nullptr;
+
 		return true;
 	}
 

@@ -32,7 +32,7 @@ protected:
 
 // Drop Section
 public:
-	bool Drop(FName ID, int32 NewQuantity = -1);
+	bool Drop(FName ID, EItemInventoryType ItenType, int32 NewQuantity = -1);
 private:
 	FItemInventoryData DropItem = {};
 	bool CheckItemExist(FName ID, int32 Quantity);	// ID 에 해당하는 아이템 정보가 있는지 확인
@@ -43,11 +43,12 @@ public:
 
 // Weapon Section
 private:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UChildActorComponent> EquipChildComp;
 public:
 	bool Armed(FName ID);
-	bool DisArmed();
+	//bool DisArmed();
+	bool DisArmed(FName ID);
 private:
 	bool CreateEquipmentComp(FItemHoldableData& HoldableData);	// Child Actor Comp 생성
 	bool SetEquipChildComp(FItemInventoryData* ItemData);		// 생성된 Child Actor Comp 의 Actor 설정

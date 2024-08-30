@@ -155,6 +155,21 @@ void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	}
 }
 
+UChildActorComponent* AGHPlayer::FindChildActorMap(FName Name)
+{
+	UChildActorComponent** Result = ChildActorMap.Find(Name);
+
+	if (Result != nullptr)
+		return *Result;
+	else
+		return nullptr;
+}
+
+void AGHPlayer::AddChildActorMap(FName Name, UChildActorComponent* ChildActor)
+{
+	ChildActorMap.Add(Name, ChildActor);
+}
+
 void AGHPlayer::IA_SetDestination_Triggered(const FInputActionValue& Value)
 {
 	Cast<AGHPlayerController>(GetController())->GetLocationUnderCursor();
@@ -196,7 +211,6 @@ void AGHPlayer::IA_SlotNum1_Started(const FInputActionValue& Value)
 	UE_LOG(LogTemp, Log, TEXT("Slot Num1"));
 }
 
-
 void AGHPlayer::IA_Inventory_Started(const FInputActionValue& Value)
 {
 	Inventory->ReviewInventory();
@@ -204,28 +218,50 @@ void AGHPlayer::IA_Inventory_Started(const FInputActionValue& Value)
 
 void AGHPlayer::IA_Equip_Started(const FInputActionValue& Value)
 {
-	if (!isEquip)
+	if (false == isEquip)
 	{
-		if (Inventory->Armed(FName("Sword")))
-		{
-			isEquip = true;
-			isCombat = true;
-		}
+		// case 1
+		//for (const TPair<FName, UChildActorComponent*>& ChildActor : ChildActorMap)
+
+		// case 2
+		//for (auto It = ChildActorMap.CreateIterator(); It; ++It)
+		//{
+		//	Inventory->Armed(It.Key());
+		//	if (It.Key() == FName("Sword"))
+		//		isEquipSword = true;
+		//}
+
+		Inventory->Armed(FName("Sword"));
+		isEquipSword = true;
+
+		isEquip = true;
+		isCombat = true;
 	}
 	else
 	{
-		if (Inventory->DisArmed())
-		{
-			isEquip = false;
-			isCombat = false;
-		}
+		// case 1
+		//for (const TPair<FName, UChildActorComponent*>& ChildActor : ChildActorMap)
+
+		// case 2
+		//for (auto It = ChildActorMap.CreateIterator(); It; ++It)
+		//{
+		//	Inventory->DisArmed(It.Key());
+		//	if (It.Key() == FName("Sword"))
+		//		isEquipSword = false;
+		//}
+
+		Inventory->DisArmed(FName("Sword"));
+		isEquipSword = false;
+
+		isEquip = false;
+		isCombat = false;
 	}
 }
 
 void AGHPlayer::IA_NormalAttack_Started(const FInputActionValue& Value)
 {
 	// 장비 장착여부 확인
-	if (isEquip)
+	if (isEquipSword)
 	{
 		isCombat = true;
 
