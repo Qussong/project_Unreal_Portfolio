@@ -139,6 +139,7 @@ void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	if (IsValid(EnhancedInputComp) && IsValid(PlayerInput))
 	{
 		// Move
+		MoveActionValue = &EnhancedInputComp->BindActionValue(PlayerInput->IA_SetDestination);
 		EnhancedInputComp->BindAction(PlayerInput->IA_SetDestination, ETriggerEvent::Triggered, this, &AGHPlayer::IA_SetDestination_Triggered);
 		EnhancedInputComp->BindAction(PlayerInput->IA_SetDestination, ETriggerEvent::Started, this, &AGHPlayer::IA_SetDestination_Started);
 		EnhancedInputComp->BindAction(PlayerInput->IA_SetDestination, ETriggerEvent::Canceled, this, &AGHPlayer::IA_SetDestination_Canceled);
@@ -249,7 +250,9 @@ void AGHPlayer::IA_NormalAttack_Started(const FInputActionValue& Value)
 
 void AGHPlayer::AttackCheck_Begin(FVector& Start_V, FVector End_V, FVector& Start_H, FVector& End_H)
 {
-	UChildActorComponent** SwordActorComp = ChildActorMap.Find("Sword");
+	if (this == nullptr) return;
+
+	UChildActorComponent** SwordActorComp = ChildActorMap.Find(FName("Sword"));
 	if (nullptr != SwordActorComp)
 	{
 		AActor* ChildActor = (*SwordActorComp)->GetChildActor();
@@ -272,9 +275,11 @@ void AGHPlayer::AttackCheck_Begin(FVector& Start_V, FVector End_V, FVector& Star
 
 void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start_H, FVector& End_H)
 {
+	if (this == nullptr) return;
+
 	if (isEquip)
 	{
-		UChildActorComponent** SwordActorComp = ChildActorMap.Find("Sword");
+		UChildActorComponent** SwordActorComp = ChildActorMap.Find(FName("Sword"));
 		if (nullptr != SwordActorComp)
 		{
 			AActor* ChildActor = (*SwordActorComp)->GetChildActor();

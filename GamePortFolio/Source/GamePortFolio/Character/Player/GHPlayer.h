@@ -70,10 +70,14 @@ protected:
 
 // IA_SetDestination Section
 protected:
+	struct FEnhancedInputActionValueBinding* MoveActionValue;
 	void IA_SetDestination_Triggered(const FInputActionValue& Value);
 	void IA_SetDestination_Started(const FInputActionValue& Value);
 	void IA_SetDestination_Canceled(const FInputActionInstance& Value);
 	void IA_SetDestination_Completed(const FInputActionInstance& Value);
+public:
+	FEnhancedInputActionValueBinding* GetMoveActionValue() { return MoveActionValue; }
+
 
 // IA_PlayerAttack Section
 protected:

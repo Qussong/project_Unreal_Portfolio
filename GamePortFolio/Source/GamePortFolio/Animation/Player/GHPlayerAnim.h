@@ -31,6 +31,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack)
 	TObjectPtr<UAnimMontage> NormalAttackMontage;
 public:
+	FORCEINLINE UAnimMontage* GetNormalAttackMontage() { return NormalAttackMontage; }
 	void PlayNormalAttackMontage();
 
 };
