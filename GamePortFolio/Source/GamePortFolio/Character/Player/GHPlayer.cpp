@@ -16,6 +16,7 @@
 #include "Stat/Player/GHPlayerStatComponent.h"
 #include "Component/Inventory/GHInventoryComponent.h"
 #include "Animation/Player/GHPlayerAnim.h"
+#include "Item/Equip/GHWeapon.h"
 
 AGHPlayer::AGHPlayer()
 {
@@ -218,41 +219,17 @@ void AGHPlayer::IA_Inventory_Started(const FInputActionValue& Value)
 
 void AGHPlayer::IA_Equip_Started(const FInputActionValue& Value)
 {
+	if (ChildActorMap.IsEmpty()) return;
+
 	if (false == isEquip)
 	{
-		// case 1
-		//for (const TPair<FName, UChildActorComponent*>& ChildActor : ChildActorMap)
-
-		// case 2
-		//for (auto It = ChildActorMap.CreateIterator(); It; ++It)
-		//{
-		//	Inventory->Armed(It.Key());
-		//	if (It.Key() == FName("Sword"))
-		//		isEquipSword = true;
-		//}
-
 		Inventory->Armed(FName("Sword"));
-		isEquipSword = true;
-
 		isEquip = true;
 		isCombat = true;
 	}
 	else
 	{
-		// case 1
-		//for (const TPair<FName, UChildActorComponent*>& ChildActor : ChildActorMap)
-
-		// case 2
-		//for (auto It = ChildActorMap.CreateIterator(); It; ++It)
-		//{
-		//	Inventory->DisArmed(It.Key());
-		//	if (It.Key() == FName("Sword"))
-		//		isEquipSword = false;
-		//}
-
 		Inventory->DisArmed(FName("Sword"));
-		isEquipSword = false;
-
 		isEquip = false;
 		isCombat = false;
 	}
@@ -261,11 +238,93 @@ void AGHPlayer::IA_Equip_Started(const FInputActionValue& Value)
 void AGHPlayer::IA_NormalAttack_Started(const FInputActionValue& Value)
 {
 	// 장비 장착여부 확인
-	if (isEquipSword)
+	if (isEquip)
 	{
 		isCombat = true;
 
 		// 공격 애니메이션 재생
 		Anim->PlayNormalAttackMontage();
+	}
+}
+
+void AGHPlayer::AttackCheck_Begin(FVector& Start_V, FVector End_V, FVector& Start_H, FVector& End_H)
+{
+	UChildActorComponent** SwordActorComp = ChildActorMap.Find("Sword");
+	if (nullptr != SwordActorComp)
+	{
+		AActor* ChildActor = (*SwordActorComp)->GetChildActor();
+		if (nullptr == ChildActor) return;
+
+		AGHWeapon* Weapon = Cast<AGHWeapon>(ChildActor);
+		if (nullptr == Weapon) return;
+
+		UStaticMeshComponent* SwordStaticMesh = Weapon->GetItemStaticMeshComp();
+		if (nullptr == SwordStaticMesh) return;
+
+		// Start_V, End_V 위치 설정
+		Start_V = SwordStaticMesh->GetSocketLocation(FName("Start"));
+		End_V = SwordStaticMesh->GetSocketLocation(FName("End"));
+		// Start_H, End_H 위치 설정
+		Start_H = End_V;
+		End_H = End_V;
+	}
+}
+
+void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start_H, FVector& End_H)
+{
+	if (isEquip)
+	{
+		UChildActorComponent** SwordActorComp = ChildActorMap.Find("Sword");
+		if (nullptr != SwordActorComp)
+		{
+			AActor* ChildActor = (*SwordActorComp)->GetChildActor();
+			if (nullptr == ChildActor) return;
+
+			AGHWeapon* Weapon = Cast<AGHWeapon>(ChildActor);
+			if (nullptr == Weapon) return;
+
+			UStaticMeshComponent* SwordStaticMesh = Weapon->GetItemStaticMeshComp();
+			if (nullptr == SwordStaticMesh) return;
+
+			// Start_V, End_V 위치 설정
+			Start_V = SwordStaticMesh->GetSocketLocation(FName("Start"));
+			End_V = SwordStaticMesh->GetSocketLocation(FName("End"));
+
+			// End_H 위치 설정
+			End_H = End_V;
+
+			// Line1
+			FHitResult HitResultVertical;
+			FCollisionQueryParams CollisionParamsVertical;
+			CollisionParamsVertical.AddIgnoredActor(this); // 자기 자신은 무시
+			bool IsHit = GetWorld()->LineTraceSingleByChannel(HitResultVertical, Start_V, End_V, ECC_GameTraceChannel4, CollisionParamsVertical);
+
+			if (IsHit)
+			{
+				DrawDebugLine(GetWorld(), Start_V, End_V, FColor::Red, false, 1, 0, 1);
+			}
+			else
+			{
+				DrawDebugLine(GetWorld(), Start_V, End_V, FColor::Green, false, 1, 0, 1);
+			}
+
+			// Line2
+			FHitResult HitResultHorizotal;
+			FCollisionQueryParams CollisionParamsHorizontal;
+			CollisionParamsHorizontal.AddIgnoredActor(this); // 자기 자신은 무시
+			IsHit = GetWorld()->LineTraceSingleByChannel(HitResultHorizotal, Start_H, End_H, ECC_GameTraceChannel4, CollisionParamsHorizontal);
+
+			if (IsHit)
+			{
+				DrawDebugLine(GetWorld(), Start_H, End_H, FColor::Red, false, 1, 0, 1);
+			}
+			else
+			{
+				DrawDebugLine(GetWorld(), Start_H, End_H, FColor::Green, false, 1, 0, 1);
+			}
+
+			// Start_H 위치 설정
+			Start_H = End_V;
+		}
 	}
 }

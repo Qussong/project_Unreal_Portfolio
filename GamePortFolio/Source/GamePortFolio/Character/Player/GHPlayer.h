@@ -55,7 +55,7 @@ protected:
 public:
 	FORCEINLINE UGHInventoryComponent* GetInventory() { return Inventory; }
 
-// Weapon Seciton
+// Equip Seciton
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = ChildActorComp)
 	TMap<FName, UChildActorComponent*> ChildActorMap;
@@ -101,11 +101,11 @@ public:
 	bool isEquip = false;	// 장비 장착 여부
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
 	bool isCombat = false;	// 전투 상태 여부
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equip)
-	bool isEquipSword = false;	// Sword 장착 여부
 
 // IA_Normal Attack
 protected:
 	void IA_NormalAttack_Started(const FInputActionValue& Value);
-
+public:
+	void AttackCheck_Begin(FVector& Start_V, FVector End_V, FVector& Start_H, FVector& End_H);
+	void AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start_H, FVector& End_H);
 };
