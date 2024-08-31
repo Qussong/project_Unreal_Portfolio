@@ -321,20 +321,7 @@ void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start
 			if (IsHit)
 			{
 				DrawDebugLine(GetWorld(), Start_V, End_V, FColor::Red, false, 1, 0, 1);
-				
-				for (FHitResult HitResult : HitResultsVertical)
-				{
-					AActor* Hitter = HitResult.GetActor();
-					bool isExist = HitCheckContainer.Contains(Hitter);
-					if (false == isExist)
-					{
-						HitCheckContainer.Add(Hitter);
-						// 面倒贸府
-						UE_LOG(LogTemp, Log, TEXT("HIT!!"));
-						AActor* Sword = (*ChildActorMap.Find(FName("Sword")))->GetChildActor();
-						UGameplayStatics::ApplyDamage(Hitter, Stat->GetATK(), GetController(), Sword, UDamageType::StaticClass());
-					}
-				}
+				Hit(HitResultsVertical);
 			}
 			else
 			{
@@ -350,6 +337,7 @@ void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start
 			if (IsHit)
 			{
 				DrawDebugLine(GetWorld(), Start_H, End_H, FColor::Red, false, 1, 0, 1);
+				Hit(HitResultsHorizontal);
 			}
 			else
 			{
@@ -360,4 +348,32 @@ void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start
 			Start_H = End_V;
 		}
 	}
+}
+
+void AGHPlayer::Hit(TArray<FHitResult>& HitResults)
+{
+	
+	for (FHitResult HitResult : HitResults)
+	{
+		AActor* Hitter = HitResult.GetActor();
+		bool isExist = HitCheckContainer.Contains(Hitter);
+		if (false == isExist)
+		{
+			UE_LOG(LogTemp, Log, TEXT("HIT!!"));
+
+			// 单固瘤 贸府
+			HitCheckContainer.Add(Hitter);
+			UGameplayStatics::ApplyDamage(Hitter, Stat->GetATK(), GetController(), this, UDamageType::StaticClass());
+
+			// 塞 贸府
+			//UPrimitiveComponent* OtherComp = HitResult.GetComponent();
+			//FVector ImpulseDirection = (Hitter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
+			//FVector Impulse = ImpulseDirection * 1000.0f; // 烙妻胶 农扁
+			//if (OtherComp->IsSimulatingPhysics())
+			//{
+			//	OtherComp->AddImpulse(Impulse);
+			//}
+		}
+	}
+
 }

@@ -9,7 +9,7 @@
 
 UBTTask_Hit::UBTTask_Hit()
 {
-	NodeName = TEXT("Detect");
+	NodeName = TEXT("Hit");
 	bNotifyTick = true;
 }
 
@@ -27,12 +27,11 @@ void UBTTask_Hit::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory,
 {
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
-	//bool IsHit = OwnerComp.GetBlackboardComponent()->GetValueAsBool(TEXT("IsHit"));
-	//if (IsHit)
-	//{
-	//	FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
-	//	OwnerComp.GetBlackboardComponent()->SetValueAsBool(TEXT("IsHit"), false);
-	//}
+	bool IsHit = OwnerComp.GetBlackboardComponent()->GetValueAsBool(TEXT("IsHit"));
+	if (false == IsHit)
+	{
+		FinishLatentTask(OwnerComp, EBTNodeResult::Succeeded);
+	}
 }
 
 void UBTTask_Hit::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult)

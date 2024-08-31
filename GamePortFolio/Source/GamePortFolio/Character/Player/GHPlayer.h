@@ -115,5 +115,8 @@ public:
 	void AttackCheck_Begin(FVector& Start_V, FVector End_V, FVector& Start_H, FVector& End_H);
 	void AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start_H, FVector& End_H);
 
+// Hit Section
+protected:
+	void Hit(TArray<FHitResult>& HitResults);
 
 };

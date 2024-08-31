@@ -9,11 +9,11 @@ AGHEquipItem::AGHEquipItem()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Collision Section
-	ItemCollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
-	ItemCollisionComp->SetupAttachment(RootComponent);
-	ItemCollisionComp->SetCollisionProfileName(TEXT("ItemProfile"));
-	ItemCollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AGHEquipItem::OnOverlapBegin);
-	ItemCollisionComp->OnComponentEndOverlap.AddDynamic(this, &AGHEquipItem::OnEndOverlap);
+	//ItemCollisionComp = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
+	//ItemCollisionComp->SetupAttachment(RootComponent);
+	//ItemCollisionComp->SetCollisionProfileName(TEXT("ItemProfile"));
+	//ItemCollisionComp->OnComponentBeginOverlap.AddDynamic(this, &AGHEquipItem::OnOverlapBegin);
+	//ItemCollisionComp->OnComponentEndOverlap.AddDynamic(this, &AGHEquipItem::OnEndOverlap);
 }
 
 void AGHEquipItem::BeginPlay()
@@ -27,12 +27,10 @@ void AGHEquipItem::Tick(float DeltaTime)
 
 }
 
-void AGHEquipItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-
-}
-
-void AGHEquipItem::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-
-}
+//void AGHEquipItem::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+//{
+//}
+//
+//void AGHEquipItem::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+//{
+//}

@@ -52,7 +52,7 @@ void AGHMonster::SetState(EMonsterState NewState)
 		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::ANGRY);
 		break;
 	case EMonsterState::HIT:
-		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::ANGRY);
+		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::HIT);
 		break;
 	case EMonsterState::DETECT:
 		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::DETECT);

@@ -13,6 +13,8 @@
 #include "Stat/GHBaseStatComponent.h"
 #include "Components/ProgressBar.h"
 
+#include "BehaviorTree/BlackboardComponent.h"
+
 AGHNormalMonster::AGHNormalMonster()
 {
 	// Controller Section
@@ -121,6 +123,10 @@ float AGHNormalMonster::TakeDamage(float DamageAmount, const FDamageEvent& Damag
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	UpdateHUD();
+
+	AGHNormalMonsterController* MonsterController = Cast<AGHNormalMonsterController>(GetController());
+	MonsterController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsHit"), true);
+	MonsterController->GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), DamageCauser);
 
 	return DamageAmount;
 }
