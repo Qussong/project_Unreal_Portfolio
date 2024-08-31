@@ -31,6 +31,10 @@ class GAMEPORTFOLIO_API AGHMonster : public AGHAI
 public:
 	AGHMonster();
 
+// Anim Section
+protected:
+	class UGHMonsterAnim* MonsterAnim;
+
 // Monster State Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = State)

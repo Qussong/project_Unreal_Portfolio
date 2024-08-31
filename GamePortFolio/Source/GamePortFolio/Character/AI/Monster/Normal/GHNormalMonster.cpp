@@ -4,6 +4,7 @@
 #include "Character/AI/Monster/Normal/GHNormalMonster.h"
 #include "Controller/AI/Monster/Normal/GHNormalMonsterController.h"
 #include "Components/CapsuleComponent.h"
+#include "Animation/AI/Monster/GHMonsterAnim.h"
 
 AGHNormalMonster::AGHNormalMonster()
 {
@@ -37,6 +38,8 @@ AGHNormalMonster::AGHNormalMonster()
 void AGHNormalMonster::BeginPlay()
 {
 	Super::BeginPlay();
+
+	MonsterAnim = Cast<UGHMonsterAnim>(GetMesh()->GetAnimInstance());
 }
 
 void AGHNormalMonster::Tick(float DeltaTime)

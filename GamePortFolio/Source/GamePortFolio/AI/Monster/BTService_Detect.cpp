@@ -58,9 +58,9 @@ void UBTService_Detect::DetectTarget(UBehaviorTreeComponent& OwnerComp)
 
 			UObject* PreTarget = OwnerComp.GetBlackboardComponent()->GetValueAsObject(TEXT("PreTarget"));
 
-			// 이미 등록된 PreTarget 과 다르고 아군이 아닌경우 새로운 PreTarget 으로 등록
+			// 이미 등록된 PreTarget 과 다르고 적군인경우 새로운 PreTarget 으로 등록
 			if (PreTarget != DetectPawn
-				&& RelationShip != ETeamAttitude::Friendly)
+				&& RelationShip == ETeamAttitude::Hostile)
 			{
 				OwnerComp.GetBlackboardComponent()->SetValueAsObject(TEXT("PreTarget"), DetectPawn);
 #if ENABLE_DRAW_DEBUG
@@ -74,7 +74,7 @@ void UBTService_Detect::DetectTarget(UBehaviorTreeComponent& OwnerComp)
 			EMonsterState NormalMonsterState = NormalMonster->GetState();
 			if (NormalMonster
 				&& EMonsterState::DETECT == NormalMonsterState
-				&& RelationShip != ETeamAttitude::Friendly)
+				&& RelationShip == ETeamAttitude::Hostile)
 			{
 				NormalMonster->IncreaseWarniss();
 #if ENABLE_DRAW_DEBUG

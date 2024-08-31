@@ -2,11 +2,12 @@
 
 
 #include "Character/AI/Monster/GHMonster.h"
+#include "Animation/AI/Monster/GHMonsterAnim.h"
 
 AGHMonster::AGHMonster()
 {
 	// Team Section
-	SetGenericTeamId(ETeamID::MONSTER);
+	SetTeamID(ETeamID::MONSTER);
 
 }
 
@@ -18,22 +19,22 @@ void AGHMonster::SetState(EMonsterState NewState)
 	switch (MonsterState)
 	{
 	case EMonsterState::IDLE:
-		//Anim->SetAnimState(EMonsterAnimState::IDLE);
+		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::IDLE);
 		break;
 	case EMonsterState::TRACE:
-		//Anim->SetAnimState(EMonsterAnimState::RUN);
+		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::RUN);
 		break;
 	case EMonsterState::ATTACK:
-		//Anim->SetAnimState(EMonsterAnimState::ATTACK);
+		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::ATTACK);
 		break;
 	case EMonsterState::DEATH:
-		//Anim->SetAnimState(EMonsterAnimState::DEATH);
+		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::DEATH);
 		break;
 	case EMonsterState::ANGRY:
-		//Anim->SetAnimState(EMonsterAnimState::ANGRY);
+		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::ANGRY);
 		break;
 	case EMonsterState::DETECT:
-		//Anim->SetAnimState(EMonsterAnimState::DETECT);
+		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::DETECT);
 		break;
 	default:
 		//

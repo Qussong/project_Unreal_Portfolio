@@ -35,4 +35,13 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat)
 	TObjectPtr<class UGHBaseStatComponent> Stat;
+
+// Team Section
+protected:
+	UPROPERTY(VisibleAnywhere)
+	uint8 TeamID = (uint8)FGenericTeamId::NoTeam;	// = 255
+	FORCEINLINE void SetTeamID(uint8 NewTeamID) { TeamID = NewTeamID; }
+public:
+	FORCEINLINE virtual FGenericTeamId GetGenericTeamId() const override { return FGenericTeamId(TeamID); }
+
 };

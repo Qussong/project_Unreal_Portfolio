@@ -24,7 +24,7 @@ AGHPlayer::AGHPlayer()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// Team Section
-	SetGenericTeamId(ETeamID::PLAYER);
+	SetTeamID(ETeamID::PLAYER);
 
 	// Camera Section
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
