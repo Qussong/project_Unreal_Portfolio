@@ -40,6 +40,10 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	TObjectPtr<class UCameraComponent>	FollowCamera;
 
+// Death Section
+protected:
+	virtual void SetDeath() override;
+
 // UI Section
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
@@ -78,11 +82,6 @@ protected:
 public:
 	FEnhancedInputActionValueBinding* GetMoveActionValue() { return MoveActionValue; }
 
-
-// IA_PlayerAttack Section
-protected:
-	void IA_PlayerAttack_Started(const FInputActionValue& Value);
-
 // IA_Slot Section
 protected:
 	void IA_SlotNum1_Started(const FInputActionValue& Value);
@@ -108,8 +107,13 @@ public:
 
 // IA_Normal Attack
 protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Hit)
+	TSet<AActor*> HitCheckContainer;
+protected:
 	void IA_NormalAttack_Started(const FInputActionValue& Value);
 public:
 	void AttackCheck_Begin(FVector& Start_V, FVector End_V, FVector& Start_H, FVector& End_H);
 	void AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start_H, FVector& End_H);
+
+
 };

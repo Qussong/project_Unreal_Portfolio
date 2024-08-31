@@ -34,7 +34,7 @@ protected:
 	UPROPERTY()
 	TObjectPtr<class UBehaviorTree> BTAsset;
 
-protected:
+public:
 	void RunAI();
 	void StopAI();
 

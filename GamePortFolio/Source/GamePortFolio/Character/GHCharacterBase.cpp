@@ -55,3 +55,11 @@ void AGHCharacterBase::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 }
 
+float AGHCharacterBase::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	Stat->DecreaseHealth(DamageAmount);
+	return DamageAmount;
+}
+

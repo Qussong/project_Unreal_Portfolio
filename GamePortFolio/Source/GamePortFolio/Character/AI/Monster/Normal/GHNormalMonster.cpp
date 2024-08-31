@@ -71,6 +71,23 @@ void AGHNormalMonster::BeginPlay()
 	MonsterAnim = Cast<UGHMonsterAnim>(GetMesh()->GetAnimInstance());
 
 	// UI Section
+	UpdateHUD();
+}
+
+void AGHNormalMonster::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
+void AGHNormalMonster::SetDeath()
+{
+	Super::SetDeath();
+
+	HUDWidgetComp->SetVisibility(false);
+}
+
+void AGHNormalMonster::UpdateHUD()
+{
 	UUserWidget* Widget = HUDWidgetComp->GetWidget();
 	if (IsValid(Widget))
 	{
@@ -81,7 +98,7 @@ void AGHNormalMonster::BeginPlay()
 			UProgressBar* HpBar = Cast<UProgressBar>(MonsterWidget->GetWidgetFromName(TEXT("GHHealthBar")));
 			if (IsValid(HpBar))
 			{
-				HpBar->SetPercent(1.f);
+				HpBar->SetPercent(Stat->GetCurrnetHealth() / Stat->GetMaxHealth());
 			}
 
 			// Text Block
@@ -99,7 +116,11 @@ void AGHNormalMonster::BeginPlay()
 	}
 }
 
-void AGHNormalMonster::Tick(float DeltaTime)
+float AGHNormalMonster::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	Super::Tick(DeltaTime);
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	UpdateHUD();
+
+	return DamageAmount;
 }

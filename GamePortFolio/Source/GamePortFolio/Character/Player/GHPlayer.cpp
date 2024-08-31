@@ -18,6 +18,9 @@
 #include "Animation/Player/GHPlayerAnim.h"
 #include "Item/Equip/GHWeapon.h"
 
+#include "Kismet/GameplayStatics.h"
+#include "Components/ChildActorComponent.h"
+
 AGHPlayer::AGHPlayer()
 {
 	// Tick Section
@@ -81,6 +84,7 @@ AGHPlayer::AGHPlayer()
 
 	// Stat Section
 	Stat = CreateDefaultSubobject<UGHPlayerStatComponent>(TEXT("PlayerStat"));
+	Stat->SetATK(50);
 
 	// Inventory Section
 	Inventory = CreateDefaultSubobject<UGHInventoryComponent>(TEXT("Inventory"));
@@ -160,6 +164,13 @@ void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	}
 }
 
+void AGHPlayer::SetDeath()
+{
+	Super::SetDeath();
+
+	UE_LOG(LogTemp, Log, TEXT("Player Death"));
+}
+
 UChildActorComponent* AGHPlayer::FindChildActorMap(FName Name)
 {
 	UChildActorComponent** Result = ChildActorMap.Find(Name);
@@ -200,11 +211,6 @@ void AGHPlayer::IA_SetDestination_Completed(const FInputActionInstance& Value)
 	}
 }
 
-void AGHPlayer::IA_PlayerAttack_Started(const FInputActionValue& Value)
-{
-	UE_LOG(LogTemp, Log, TEXT("Player Attack"));
-}
-
 void AGHPlayer::IA_SlotNum1_Started(const FInputActionValue& Value)
 {
 	if (IsValid(Stat))
@@ -241,10 +247,15 @@ void AGHPlayer::IA_Equip_Started(const FInputActionValue& Value)
 
 void AGHPlayer::IA_NormalAttack_Started(const FInputActionValue& Value)
 {
+	UE_LOG(LogTemp, Log, TEXT("Player Attack"));
+
 	// 장비 장착여부 확인
 	if (isEquip)
 	{
 		isCombat = true;
+
+		// 피격대상 컨테이너 비워줌
+		HitCheckContainer.Empty();
 
 		// 공격 애니메이션 재생
 		Anim->PlayNormalAttackMontage();
@@ -302,14 +313,28 @@ void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start
 			End_H = End_V;
 
 			// Line1
-			FHitResult HitResultVertical;
+			TArray<FHitResult> HitResultsVertical;
 			FCollisionQueryParams CollisionParamsVertical;
 			CollisionParamsVertical.AddIgnoredActor(this); // 자기 자신은 무시
-			bool IsHit = GetWorld()->LineTraceSingleByChannel(HitResultVertical, Start_V, End_V, ECC_GameTraceChannel4, CollisionParamsVertical);
+			bool IsHit = GetWorld()->LineTraceMultiByChannel(HitResultsVertical, Start_V, End_V, ECC_GameTraceChannel4, CollisionParamsVertical);
 
 			if (IsHit)
 			{
 				DrawDebugLine(GetWorld(), Start_V, End_V, FColor::Red, false, 1, 0, 1);
+				
+				for (FHitResult HitResult : HitResultsVertical)
+				{
+					AActor* Hitter = HitResult.GetActor();
+					bool isExist = HitCheckContainer.Contains(Hitter);
+					if (false == isExist)
+					{
+						HitCheckContainer.Add(Hitter);
+						// 충돌처리
+						UE_LOG(LogTemp, Log, TEXT("HIT!!"));
+						AActor* Sword = (*ChildActorMap.Find(FName("Sword")))->GetChildActor();
+						UGameplayStatics::ApplyDamage(Hitter, Stat->GetATK(), GetController(), Sword, UDamageType::StaticClass());
+					}
+				}
 			}
 			else
 			{
@@ -317,10 +342,10 @@ void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start
 			}
 
 			// Line2
-			FHitResult HitResultHorizotal;
+			TArray<FHitResult> HitResultsHorizontal;
 			FCollisionQueryParams CollisionParamsHorizontal;
-			CollisionParamsHorizontal.AddIgnoredActor(this); // 자기 자신은 무시
-			IsHit = GetWorld()->LineTraceSingleByChannel(HitResultHorizotal, Start_H, End_H, ECC_GameTraceChannel4, CollisionParamsHorizontal);
+			CollisionParamsVertical.AddIgnoredActor(this); // 자기 자신은 무시
+			IsHit = GetWorld()->LineTraceMultiByChannel(HitResultsHorizontal, Start_H, End_H, ECC_GameTraceChannel4, CollisionParamsVertical);
 
 			if (IsHit)
 			{

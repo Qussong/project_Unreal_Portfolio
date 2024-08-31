@@ -30,6 +30,10 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
+// Death Section
+protected:
+	virtual void SetDeath() override;
+
 // Wariness State
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -50,5 +54,12 @@ public:
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	TObjectPtr<class UGHMonsterWidgetComponent> HUDWidgetComp;
+protected:
+	void UpdateHUD();
+
+// Hit Section
+protected:
+	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
 
 };

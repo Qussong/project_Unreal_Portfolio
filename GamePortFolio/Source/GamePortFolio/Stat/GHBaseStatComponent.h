@@ -30,12 +30,8 @@ protected:
 public:
 	FORCEINLINE float GetCurrnetHealth() { return CurrentHealth; }
 	FORCEINLINE float GetMaxHealth() { return MaxHealth; }
-	FORCEINLINE float IncreaeHealth(float Heal)
-	{
-		CurrentHealth = MaxHealth - CurrentHealth < Heal ? MaxHealth : CurrentHealth + Heal;
-		return CurrentHealth;
-	}
-	FORCEINLINE float DecreaseHealth(float Damage) { CurrentHealth -= Damage; return CurrentHealth; }
+	float IncreaeHealth(float Heal);
+	float DecreaseHealth(float Damage);
 
 // EXP Section
 protected:
@@ -51,6 +47,7 @@ protected:
 	float ATK;
 public:
 	FORCEINLINE float GetATK() { return ATK; }
+	FORCEINLINE void SetATK(float NewATK) { ATK = NewATK; }
 	FORCEINLINE float IncreaseATK(float Point) { ATK += Point; return ATK; }
 
 // DEF Section
@@ -59,5 +56,6 @@ protected:
 	float DEF;
 public:
 	FORCEINLINE float GetDEF() { return DEF; }
+	FORCEINLINE void SetDEF(float NewDEF) { DEF = NewDEF; }
 	FORCEINLINE float IncreaseDEF(float Point) { DEF += Point; return DEF; }
 };

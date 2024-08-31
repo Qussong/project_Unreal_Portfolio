@@ -44,4 +44,11 @@ protected:
 public:
 	FORCEINLINE virtual FGenericTeamId GetGenericTeamId() const override { return FGenericTeamId(TeamID); }
 
+// Hit Section
+protected:
+	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
+
+// Death Section
+public:
+	virtual void SetDeath() {};
 };

@@ -60,5 +60,5 @@ void AGHPlayerController::Rotate()
 
 	GetPawn()->SetActorRotation(FRotator(0.f, TargetRotation.Yaw, 0.f));
 
-	UE_LOG(LogTemp, Log, TEXT("The float value is: %s"), *TargetRotation.ToString());
+	//UE_LOG(LogTemp, Log, TEXT("The float value is: %s"), *TargetRotation.ToString());
 }

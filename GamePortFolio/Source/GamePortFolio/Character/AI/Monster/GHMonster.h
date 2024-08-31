@@ -15,7 +15,7 @@ enum class EMonsterState : uint8
 	ATTACK,
 	DEATH,
 	ANGRY,
-
+	HIT,
 	// Normal
 	DETECT,
 };
@@ -34,6 +34,10 @@ public:
 // Anim Section
 protected:
 	class UGHMonsterAnim* MonsterAnim;
+
+// Death Section
+protected:
+	virtual void SetDeath() override;
 
 // Monster State Section
 protected:

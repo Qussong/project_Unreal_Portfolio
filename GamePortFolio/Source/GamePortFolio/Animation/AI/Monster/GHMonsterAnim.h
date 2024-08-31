@@ -18,6 +18,7 @@ enum class EMonsterAnimState : uint8
 	DEATH,
 	DEATH2,
 	ANGRY,
+	HIT,
 	// Normal
 	DETECT,
 };
