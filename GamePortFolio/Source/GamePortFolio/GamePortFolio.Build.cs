@@ -21,6 +21,7 @@ public class GamePortFolio : ModuleRules
             "NavigationSystem",
             "Niagara",
             "UMG",
+			"GameplayTasks",
 
         });
 	}

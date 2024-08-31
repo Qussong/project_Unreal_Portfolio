@@ -11,6 +11,7 @@
  */
 UCLASS()
 class GAMEPORTFOLIO_API AGHPlayerController : public APlayerController
+
 {
 	GENERATED_BODY()
 	

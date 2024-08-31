@@ -4,10 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "GenericTeamAgentInterface.h"
 #include "GHCharacterBase.generated.h"
+
+enum ETeamID : uint8
+{
+	PLAYER = 1,
+	MONSTER = 2,
+	NOTEAM = 255,
+};
 
 UCLASS()
 class GAMEPORTFOLIO_API AGHCharacterBase : public ACharacter
+										 , public IGenericTeamAgentInterface
 {
 	GENERATED_BODY()
 

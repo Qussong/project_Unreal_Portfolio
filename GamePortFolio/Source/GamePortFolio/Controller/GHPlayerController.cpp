@@ -9,7 +9,6 @@
 
 AGHPlayerController::AGHPlayerController()
 {
-
 }
 
 void AGHPlayerController::BeginPlay()

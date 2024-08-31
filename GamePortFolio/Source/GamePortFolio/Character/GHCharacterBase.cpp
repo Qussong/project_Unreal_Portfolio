@@ -10,6 +10,9 @@ AGHCharacterBase::AGHCharacterBase()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	// Team Section
+	SetGenericTeamId(ETeamID::NOTEAM);
+
 	// Pawn Section
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationRoll = false;

@@ -6,6 +6,13 @@
 #include "Character/AI/Monster/GHMonster.h"
 #include "GHNormalMonster.generated.h"
 
+enum EWarnissLevel : int32
+{
+	NORMAL = 0,
+	WARNING = 3,
+	DANGER = 6,
+};
+
 /**
  * 
  */
@@ -22,5 +29,20 @@ protected:
 
 public:
 	virtual void Tick(float DeltaTime) override;
+
+// Wariness State
+private:
+	UPROPERTY(VisibleAnywhere)
+	int32 Warniss = EWarnissLevel::NORMAL;
+
+public:
+	int32 GetWarniss() { return Warniss; }
+	FORCEINLINE void IncreaseWarniss() { Warniss += 1; }
+	FORCEINLINE void DecreaseWarniss()
+	{
+		Warniss == EWarnissLevel::NORMAL ? Warniss = 0 : Warniss -= 1;
+	}
+	FORCEINLINE void DetectWarniss() { Warniss = EWarnissLevel::WARNING; }
+	FORCEINLINE void ResetWarniss() { Warniss = EWarnissLevel::NORMAL; }
 	
 };

@@ -38,4 +38,21 @@ protected:
 	void RunAI();
 	void StopAI();
 
+// TeamSection
+public:
+	FORCEINLINE virtual ETeamAttitude::Type GetTeamAttitudeTowards(const AActor& Other) const override
+	{
+		ETeamAttitude::Type Result = ETeamAttitude::Neutral;
+
+		const IGenericTeamAgentInterface* OtherTeamAgent = Cast<const IGenericTeamAgentInterface>(&Other);
+		if (nullptr != OtherTeamAgent)
+		{
+			Result = OtherTeamAgent->GetGenericTeamId() == FGenericTeamId::NoTeam
+				? ETeamAttitude::Neutral
+				: FGenericTeamId::GetAttitude(GetGenericTeamId(), OtherTeamAgent->GetGenericTeamId());
+		}
+
+		return Result;
+	}
+
 };

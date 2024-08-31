@@ -6,6 +6,7 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "BehaviorTree/BehaviorTreeComponent.h"
+#include "Character/AI/GHAI.h"
 
 AGHAIController::AGHAIController()
 {
@@ -25,6 +26,10 @@ void AGHAIController::OnPossess(APawn* InPawn)
 {
 	Super::OnPossess(InPawn);
 	RunAI();
+
+	// Team Section
+	uint8 PossessdPawnTeamID = Cast<AGHAI>(InPawn)->GetGenericTeamId();
+	SetGenericTeamId(FGenericTeamId(PossessdPawnTeamID));
 }
 
 void AGHAIController::OnUnPossess()

@@ -6,6 +6,20 @@
 #include "Character/AI/GHAI.h"
 #include "GHMonster.generated.h"
 
+UENUM()
+enum class EMonsterState : uint8
+{
+	// Common
+	IDLE,
+	TRACE,
+	ATTACK,
+	DEATH,
+	ANGRY,
+
+	// Normal
+	DETECT,
+};
+
 /**
  * 
  */
@@ -13,5 +27,19 @@ UCLASS()
 class GAMEPORTFOLIO_API AGHMonster : public AGHAI
 {
 	GENERATED_BODY()
+	
+public:
+	AGHMonster();
+
+// Monster State Section
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = State)
+	EMonsterState MonsterState = EMonsterState::IDLE;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = State)
+	EMonsterState MonsterPrevState = EMonsterState::IDLE;
+public:
+	virtual void SetState(EMonsterState NewState);
+	FORCEINLINE EMonsterState GetState() { return MonsterState; }
+	FORCEINLINE EMonsterState GetPrevState() { return MonsterPrevState; }
 	
 };
