@@ -27,7 +27,7 @@ EBTNodeResult::Type UBTTask_Detect::ExecuteTask(UBehaviorTreeComponent& OwnerCom
 		AGHNormalMonster* NormalMonster = Cast<AGHNormalMonster>(Monster);
 		if (NormalMonster)
 		{
-			NormalMonster->DetectWarniss();
+			OwnerComp.GetBlackboardComponent()->SetValueAsInt(TEXT("Warniss"), EWarnissLevel::WARNING);
 		}
 
 		return EBTNodeResult::InProgress;
@@ -41,27 +41,21 @@ void UBTTask_Detect::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemo
 	Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
 	// Normal Monster
-	AGHNormalMonster* NormalMonster = Cast<AGHNormalMonster>(Monster);
-	if (NormalMonster->GetWarniss() >= EWarnissLevel::DANGER)
-	{
-		// 경계도 초기화
-		NormalMonster->ResetWarniss();
-
-		// Target 설정
-		UObject* PreTarget = OwnerComp.GetBlackboardComponent()->GetValueAsObject(TEXT("PreTarget"));
-		OwnerComp.GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), PreTarget);
-	}
-
-	if (NormalMonster->GetWarniss() == EWarnissLevel::NORMAL)
+	int Warniss = OwnerComp.GetBlackboardComponent()->GetValueAsInt(TEXT("Warniss"));
+	if (Warniss == EWarnissLevel::NORMAL)
 	{
 		// PreTarget 초기화
 		OwnerComp.GetBlackboardComponent()->SetValueAsObject(TEXT("PreTarget"), nullptr);
 		FinishLatentTask(OwnerComp, EBTNodeResult::Failed);
 	}
-}
 
-void UBTTask_Detect::OnTaskFinished(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, EBTNodeResult::Type TaskResult)
-{
-	Super::OnTaskFinished(OwnerComp, NodeMemory, TaskResult);
+	if (Warniss >= EWarnissLevel::DANGER)
+	{
+		// Target 설정
+		UObject* PreTarget = OwnerComp.GetBlackboardComponent()->GetValueAsObject(TEXT("PreTarget"));
+		OwnerComp.GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), PreTarget);
 
+		// 경계도 초기화
+		OwnerComp.GetBlackboardComponent()->SetValueAsInt(TEXT("Warniss"), EWarnissLevel::NORMAL);
+	}
 }

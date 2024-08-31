@@ -46,40 +46,43 @@ void UBTService_Detect::DetectTarget(UBehaviorTreeComponent& OwnerComp)
 		FCollisionShape::MakeSphere(DetectRadius),
 		ColliionQueryParma);
 
-	
 	if (bResult)
 	{
 		// 충돌된 객체가 있는경우
 		for (auto const& OverlapResult : OverlapResults)
 		{
-			APawn* DetectPawn = Cast<APawn>(OverlapResult.GetActor());
+			// 충돌된 객체의 정보 가져옴
+			APawn* CollisionPawn = Cast<APawn>(OverlapResult.GetActor());
+			// 충돌된 객체와의 관계를 가져옴 (적군?)
 			AGHAIController* AIController = Cast<AGHAIController>(MonsterPawn->GetController());
-			ETeamAttitude::Type RelationShip = AIController->GetTeamAttitudeTowards(*DetectPawn);
-
+			ETeamAttitude::Type RelationShip = AIController->GetTeamAttitudeTowards(*CollisionPawn);
+			// BB에서 PreTarget 의 정보 가져옴
 			UObject* PreTarget = OwnerComp.GetBlackboardComponent()->GetValueAsObject(TEXT("PreTarget"));
 
-			// 이미 등록된 PreTarget 과 다르고 적군인경우 새로운 PreTarget 으로 등록
-			if (PreTarget != DetectPawn
+			// 충돌한 객체가 이미 등록된 PreTarget 과 다르고 적군인경우 새로운 PreTarget 으로 등록
+			if (PreTarget != CollisionPawn
 				&& RelationShip == ETeamAttitude::Hostile)
 			{
-				OwnerComp.GetBlackboardComponent()->SetValueAsObject(TEXT("PreTarget"), DetectPawn);
+				OwnerComp.GetBlackboardComponent()->SetValueAsObject(TEXT("PreTarget"), CollisionPawn);
 #if ENABLE_DRAW_DEBUG
 				DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Red, false, 0.5f);
-				DrawDebugLine(World, Center, DetectPawn->GetActorLocation(), FColor::Red, false, 0.5f);
+				DrawDebugLine(World, Center, CollisionPawn->GetActorLocation(), FColor::Red, false, 0.5f);
 #endif
 			}
 
-			// Normal Monster
-			AGHNormalMonster* NormalMonster = Cast<AGHNormalMonster>(MonsterPawn);
-			EMonsterState NormalMonsterState = NormalMonster->GetState();
-			if (NormalMonster
+			AGHNormalMonster* NoramlMonster = Cast<AGHNormalMonster>(MonsterPawn);
+			EMonsterState NormalMonsterState = MonsterPawn->GetState();
+			if (IsValid(NoramlMonster)
 				&& EMonsterState::DETECT == NormalMonsterState
 				&& RelationShip == ETeamAttitude::Hostile)
 			{
-				NormalMonster->IncreaseWarniss();
+				int32 Warniss = OwnerComp.GetBlackboardComponent()->GetValueAsInt(TEXT("Warniss"));
+				Warniss += 1;
+				OwnerComp.GetBlackboardComponent()->SetValueAsInt(TEXT("Warniss"), Warniss);
+
 #if ENABLE_DRAW_DEBUG
 				DrawDebugSphere(World, Center, DetectRadius, 16, FColor::Yellow, false, 0.5f);
-				DrawDebugLine(World, Center, DetectPawn->GetActorLocation(), FColor::Yellow, false, 0.5f);
+				DrawDebugLine(World, Center, CollisionPawn->GetActorLocation(), FColor::Yellow, false, 0.5f);
 #endif
 				return;
 			}
@@ -92,7 +95,9 @@ void UBTService_Detect::DetectTarget(UBehaviorTreeComponent& OwnerComp)
 	if (NormalMonster
 		&& EMonsterState::DETECT == MonsterPawn->GetState())
 	{
-		NormalMonster->DecreaseWarniss();
+		int32 Warniss = OwnerComp.GetBlackboardComponent()->GetValueAsInt(TEXT("Warniss"));
+		Warniss -= 1;
+		OwnerComp.GetBlackboardComponent()->SetValueAsInt(TEXT("Warniss"), Warniss);
 	}
 
 #if ENABLE_DRAW_DEBUG
