@@ -6,7 +6,7 @@ UGHBaseStatComponent::UGHBaseStatComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// Stat Init Section
-	MaxHealth = 100.f;
+	MaxHealth = 150.f;
 	CurrentHealth = MaxHealth;
 	Level = 1;
 	ATK = 10;
