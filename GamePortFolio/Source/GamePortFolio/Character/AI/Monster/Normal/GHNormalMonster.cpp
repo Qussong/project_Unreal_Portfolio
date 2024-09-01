@@ -14,6 +14,8 @@
 #include "Components/ProgressBar.h"
 
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Particles/ParticleSystem.h"
+#include "Sound/SoundCue.h"
 
 AGHNormalMonster::AGHNormalMonster()
 {
@@ -62,6 +64,21 @@ AGHNormalMonster::AGHNormalMonster()
 		{
 			HUDWidgetComp->SetWidgetClass(HUDWidgetRef.Class);
 		}
+	}
+	
+	// Hit Section
+	static ConstructorHelpers::FObjectFinder<UParticleSystem>
+		HitParticleRef(TEXT("/Script/Engine.ParticleSystem'/Game/Realistic_Starter_VFX_Pack_Vol2/Particles/Blood/P_Blood_Splat_Cone.P_Blood_Splat_Cone'"));
+	if (HitParticleRef.Succeeded())
+	{
+		HitParticle = HitParticleRef.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<USoundCue>
+		HitSoundRef(TEXT("/Script/Engine.SoundCue'/Game/Gihoon/Sound/HitSound_Cue.HitSound_Cue'"));
+	if (HitSoundRef.Succeeded())
+	{
+		HitSoundCue = HitSoundRef.Object;
 	}
 }		
 

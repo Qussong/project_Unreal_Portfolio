@@ -46,6 +46,14 @@ public:
 
 // Hit Section
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitEffect")
+	TObjectPtr<class UParticleSystem> HitParticle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HitSound")
+	TObjectPtr<class USoundCue> HitSoundCue;
+public:
+	UParticleSystem* GetHitParticle() { return HitParticle; }
+	USoundCue* GetHitSound() { return HitSoundCue; }
+protected:
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 // Death Section

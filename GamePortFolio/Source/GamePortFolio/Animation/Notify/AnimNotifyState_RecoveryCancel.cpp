@@ -17,9 +17,11 @@ void UAnimNotifyState_RecoveryCancel::NotifyTick(USkeletalMeshComponent* MeshCom
 
 	AActor* Owner = MeshComp->GetOwner();
 	AGHPlayer* Player = Cast<AGHPlayer>(Owner);
-	FEnhancedInputActionValueBinding* MoveInput = Player->GetMoveActionValue();
+	if (nullptr == Player) return;
 
+	FEnhancedInputActionValueBinding* MoveInput = Player->GetMoveActionValue();
 	bool IsMove = MoveInput->GetValue().Get<bool>();
+
 	if (IsMove)
 	{
 		UAnimInstance* Anim = MeshComp->GetAnimInstance();

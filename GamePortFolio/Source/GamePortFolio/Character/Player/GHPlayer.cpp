@@ -17,9 +17,11 @@
 #include "Component/Inventory/GHInventoryComponent.h"
 #include "Animation/Player/GHPlayerAnim.h"
 #include "Item/Equip/GHWeapon.h"
-
 #include "Kismet/GameplayStatics.h"
 #include "Components/ChildActorComponent.h"
+
+#include "Camera/GHCameraShake.h"
+#include "Sound/SoundCue.h"
 
 AGHPlayer::AGHPlayer()
 {
@@ -352,7 +354,6 @@ void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start
 
 void AGHPlayer::Hit(TArray<FHitResult>& HitResults)
 {
-	
 	for (FHitResult HitResult : HitResults)
 	{
 		AActor* Hitter = HitResult.GetActor();
@@ -365,15 +366,29 @@ void AGHPlayer::Hit(TArray<FHitResult>& HitResults)
 			HitCheckContainer.Add(Hitter);
 			UGameplayStatics::ApplyDamage(Hitter, Stat->GetATK(), GetController(), this, UDamageType::StaticClass());
 
-			// 힘 처리
-			//UPrimitiveComponent* OtherComp = HitResult.GetComponent();
-			//FVector ImpulseDirection = (Hitter->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-			//FVector Impulse = ImpulseDirection * 1000.0f; // 임펄스 크기
-			//if (OtherComp->IsSimulatingPhysics())
-			//{
-			//	OtherComp->AddImpulse(Impulse);
-			//}
+			// 이펙트 처리
+			UParticleSystem* HitEffect = Cast<AGHCharacterBase>(Hitter)->GetHitParticle();
+			if (nullptr != HitEffect)
+			{
+				FVector HitLocation = HitResult.ImpactPoint;
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, HitLocation);
+			}
+
+			// 사운드 처리
+			USoundCue* HitSound = Cast<AGHCharacterBase>(Hitter)->GetHitSound();
+			if (nullptr != HitSound)
+			{
+				FVector HitLocation = HitResult.ImpactPoint;
+				UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSound, HitLocation);
+			}
 		}
 	}
 
+	// 카메라 처리
+	TSubclassOf<UCameraShakeBase> ShakeClass = UGHCameraShake::StaticClass();	// 카메라 셰이크 클래스
+	FVector Epicenter = GetActorLocation();	// 카메라 셰이크 발생 위치
+	float InnerRadius = 10.0f;	// 셰이크 강도가 최대치로 적용될 반경 설정
+	float OuterRadius = 2000.0f;	// 셰이크 강도가 사라지는 외곽 반경 설정
+	float Falloff = 1.0f;	// 셰이크 강도 감소 비율 설정
+	UGameplayStatics::PlayWorldCameraShake(GetWorld(), ShakeClass, Epicenter, InnerRadius, OuterRadius, Falloff);
 }
