@@ -25,7 +25,8 @@ void AGHPlayerController::BeginPlay()
 void AGHPlayerController::GetLocationUnderCursor()
 {
 	FHitResult HitResult;
-	ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECC_Visibility);
+	//ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECC_Visibility);
+	ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel7);
 	isHit = GetHitResultUnderCursorByChannel(TraceType, true, HitResult);
 	if (isHit)
 	{
