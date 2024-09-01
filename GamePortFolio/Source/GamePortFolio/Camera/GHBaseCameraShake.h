@@ -4,17 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "Shakes/LegacyCameraShake.h"
-#include "GHCameraShake.generated.h"
+#include "GHBaseCameraShake.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class GAMEPORTFOLIO_API UGHCameraShake : public ULegacyCameraShake
+class GAMEPORTFOLIO_API UGHBaseCameraShake : public ULegacyCameraShake
 {
 	GENERATED_BODY()
 	
 public:
-	UGHCameraShake();
+	UGHBaseCameraShake();
 
 };

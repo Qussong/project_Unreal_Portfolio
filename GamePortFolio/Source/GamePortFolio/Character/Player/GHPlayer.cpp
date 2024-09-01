@@ -19,7 +19,7 @@
 #include "Item/Equip/GHWeapon.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/ChildActorComponent.h"
-#include "Camera/GHCameraShake.h"
+#include "Camera/PlayerAttack/GHPlayerAttackCameraShake.h"
 #include "Sound/SoundCue.h"
 #include "Components/TextBlock.h"
 #include "Particles/ParticleSystem.h"
@@ -172,11 +172,6 @@ void AGHPlayer::SetDeath()
 {
 	Super::SetDeath();
 
-	UE_LOG(LogTemp, Log, TEXT("Player Death"));
-
-	// 플레이어 충돌 정지
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 	// 플레이어 컨트롤러 정지
 	AGHPlayerController* PlayerController = Cast<AGHPlayerController>(GetController());
 	if (IsValid(PlayerController))
@@ -185,6 +180,11 @@ void AGHPlayer::SetDeath()
 		DisableInput(PlayerController);
 	}
 
+	// 플레이어 이동 중지
+	GetCharacterMovement()->StopMovementImmediately();
+
+	// 플레이어 충돌 정지
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	// Dead 애니메이션 재생
 	Anim->PlayKnockDownMontage();
@@ -299,6 +299,9 @@ void AGHPlayer::IA_NormalAttack_Started(const FInputActionValue& Value)
 
 		// 피격대상 컨테이너 비워줌
 		HitCheckContainer.Empty();
+
+		// 플레이어 이동 중지
+		GetCharacterMovement()->StopMovementImmediately();
 
 		// 공격 애니메이션 재생
 		Anim->PlayNormalAttackMontage();
@@ -430,7 +433,7 @@ void AGHPlayer::EnemyHit(TArray<FHitResult>& HitResults)
 	}
 
 	// 카메라 처리
-	TSubclassOf<UCameraShakeBase> ShakeClass = UGHCameraShake::StaticClass();	// 카메라 셰이크 클래스
+	TSubclassOf<UCameraShakeBase> ShakeClass = UGHPlayerAttackCameraShake::StaticClass();	// 카메라 셰이크 클래스
 	FVector Epicenter = GetActorLocation();	// 카메라 셰이크 발생 위치
 	float InnerRadius = 10.0f;	// 셰이크 강도가 최대치로 적용될 반경 설정
 	float OuterRadius = 2000.0f;	// 셰이크 강도가 사라지는 외곽 반경 설정
