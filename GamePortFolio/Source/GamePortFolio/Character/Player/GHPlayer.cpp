@@ -24,6 +24,8 @@
 #include "Components/TextBlock.h"
 #include "Particles/ParticleSystem.h"
 
+#include "Components/Button.h"
+
 AGHPlayer::AGHPlayer()
 {
 	// Tick Section
@@ -79,10 +81,16 @@ AGHPlayer::AGHPlayer()
 
 	// UI Section
 	static ConstructorHelpers::FClassFinder<UGHPlayerWidget>
-		PlayerWidgetRef(TEXT("/Game/Gihoon/UI/WB_Player.WB_Player_C"));
-	if (PlayerWidgetRef.Succeeded())
+		StateWidgetRef(TEXT("/Game/Gihoon/UI/WB_Player.WB_Player_C"));
+	if (StateWidgetRef.Succeeded())
 	{
-		PlayerWidgetClass = PlayerWidgetRef.Class;
+		StateWidgetClass = StateWidgetRef.Class;
+	}
+	static ConstructorHelpers::FClassFinder<UGHPlayerWidget>
+		GameOverWidgetRef(TEXT("/Game/Gihoon/UI/WB_GameOver.WB_GameOver_C"));
+	if (GameOverWidgetRef.Succeeded())
+	{
+		GameOverWidgetClass = GameOverWidgetRef.Class;
 	}
 
 	// Inventory Section
@@ -124,10 +132,20 @@ void AGHPlayer::BeginPlay()
 	}
 
 	// UI Section
-	if (IsValid(PlayerWidgetClass))
+	if (IsValid(StateWidgetClass))
 	{
-		PlayerWidgetInstance = CreateWidget<UGHPlayerWidget>(GetWorld(), PlayerWidgetClass);
-		UpdateUI();
+		StateWidgetInstance = CreateWidget<UGHPlayerWidget>(GetWorld(), StateWidgetClass);
+		StateWidgetInstance->AddToViewport();
+		UpdateStateWidget();
+	}
+
+	if (IsValid(GameOverWidgetClass))
+	{
+		GameOverWidgetInstance = CreateWidget<UGHPlayerWidget>(GetWorld(), GameOverWidgetClass);
+		YesBtn = Cast<UButton>(GameOverWidgetInstance->GetWidgetFromName(TEXT("YesBtn")));
+		NoBtn = Cast<UButton>(GameOverWidgetInstance->GetWidgetFromName(TEXT("NoBtn")));
+		YesBtn->OnClicked.AddDynamic(this, &AGHPlayer::YesBtnClicked);
+		NoBtn->OnClicked.AddDynamic(this, &AGHPlayer::NoBtnClicked);
 	}
 
 	// Anim Section
@@ -138,7 +156,7 @@ void AGHPlayer::BeginPlay()
 void AGHPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 }
 
 void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -172,12 +190,17 @@ void AGHPlayer::SetDeath()
 {
 	Super::SetDeath();
 
-	// 플레이어 컨트롤러 정지
+	// 플레이어 컨트롤러 타깃 변경
 	AGHPlayerController* PlayerController = Cast<AGHPlayerController>(GetController());
-	if (IsValid(PlayerController))
+	if (IsValid(PlayerController) && IsValid(GameOverWidgetInstance))
 	{
-		// 입력 비활성화
-		DisableInput(PlayerController);
+		// GameOver UI 출력
+		GameOverWidgetInstance->AddToViewport();
+
+		// UI 입력으로 변경
+		FInputModeUIOnly InputUIMode;
+		InputUIMode.SetWidgetToFocus(GameOverWidgetInstance->TakeWidget());
+		PlayerController->SetInputMode(InputUIMode);
 	}
 
 	// 플레이어 이동 중지
@@ -188,30 +211,39 @@ void AGHPlayer::SetDeath()
 
 	// Dead 애니메이션 재생
 	Anim->PlayKnockDownMontage();
-
 }
 
-void AGHPlayer::UpdateUI()
+void AGHPlayer::UpdateStateWidget()
 {
 	UGHPlayerStatComponent* PlayerStat = Cast<UGHPlayerStatComponent>(Stat);
-	if (IsValid(PlayerWidgetInstance) && IsValid(PlayerStat))
+	if (IsValid(StateWidgetInstance) && IsValid(PlayerStat))
 	{
-		PlayerWidgetInstance->AddToViewport();
+		//StateWidgetInstance->AddToViewport();
 
-		PlayerWidgetInstance->GetHealthBar()->SetPercent(PlayerStat->GetCurrnetHealth() / PlayerStat->GetMaxHealth());
-		PlayerWidgetInstance->GetManaBar()->SetPercent(PlayerStat->GetCurrentMana() / PlayerStat->GetMaxMana());
-		PlayerWidgetInstance->GetStaminaBar()->SetPercent(PlayerStat->GetCurrentStamina() / PlayerStat->GetMaxStamina());
-		PlayerWidgetInstance->GetEXPBar()->SetPercent(PlayerStat->GetCurrentEXP() / PlayerStat->GetMaxEXP());
+		StateWidgetInstance->GetHealthBar()->SetPercent(PlayerStat->GetCurrnetHealth() / PlayerStat->GetMaxHealth());
+		StateWidgetInstance->GetManaBar()->SetPercent(PlayerStat->GetCurrentMana() / PlayerStat->GetMaxMana());
+		StateWidgetInstance->GetStaminaBar()->SetPercent(PlayerStat->GetCurrentStamina() / PlayerStat->GetMaxStamina());
+		StateWidgetInstance->GetEXPBar()->SetPercent(PlayerStat->GetCurrentEXP() / PlayerStat->GetMaxEXP());
 
 		float CurHp = Stat->GetCurrnetHealth();
 		float MaxHp = Stat->GetMaxHealth();
 		float CurMana = PlayerStat->GetCurrentMana();
 		float MaxMana = PlayerStat->GetMaxMana();
-		PlayerWidgetInstance->GetCurHealthTextBlock()->SetText(FText::AsNumber(CurHp));
-		PlayerWidgetInstance->GetMaxHealthTextBlock()->SetText(FText::AsNumber(MaxHp));
-		PlayerWidgetInstance->GetCurManaTextBlock()->SetText(FText::AsNumber(CurMana));
-		PlayerWidgetInstance->GetMaxManaTextBlock()->SetText(FText::AsNumber(MaxMana));
+		StateWidgetInstance->GetCurHealthTextBlock()->SetText(FText::AsNumber(CurHp));
+		StateWidgetInstance->GetMaxHealthTextBlock()->SetText(FText::AsNumber(MaxHp));
+		StateWidgetInstance->GetCurManaTextBlock()->SetText(FText::AsNumber(CurMana));
+		StateWidgetInstance->GetMaxManaTextBlock()->SetText(FText::AsNumber(MaxMana));
 	}
+}
+
+void AGHPlayer::YesBtnClicked()
+{
+	UE_LOG(LogTemp, Log, TEXT("Click Yes Btn"));
+}
+
+void AGHPlayer::NoBtnClicked()
+{
+	UE_LOG(LogTemp, Log, TEXT("Click No Btn"));
 }
 
 UChildActorComponent* AGHPlayer::FindChildActorMap(FName Name)
@@ -258,8 +290,8 @@ void AGHPlayer::IA_SlotNum1_Started(const FInputActionValue& Value)
 {
 	if (IsValid(Stat))
 	{
-		Stat->DecreaseHealth(10.f);
-		PlayerWidgetInstance->GetHealthBar()->SetPercent(Stat->GetCurrnetHealth() / Stat->GetMaxHealth());
+		float Damage = 100.f;
+		UGameplayStatics::ApplyDamage(this, Damage, GetController(), this, UDamageType::StaticClass());
 	}
 
 	UE_LOG(LogTemp, Log, TEXT("Slot Num1"));
@@ -290,8 +322,6 @@ void AGHPlayer::IA_Equip_Started(const FInputActionValue& Value)
 
 void AGHPlayer::IA_NormalAttack_Started(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Player Attack"));
-
 	// 장비 장착여부 확인
 	if (isEquip)
 	{
@@ -305,6 +335,12 @@ void AGHPlayer::IA_NormalAttack_Started(const FInputActionValue& Value)
 
 		// 공격 애니메이션 재생
 		Anim->PlayNormalAttackMontage();
+
+		UE_LOG(LogTemp, Log, TEXT("Player Attack"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Log, TEXT("No Weapon"));
 	}
 }
 
@@ -446,7 +482,7 @@ float AGHPlayer::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent,
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
 	// UI 업데이트
-	UpdateUI();
+	UpdateStateWidget();
 
 	if (Stat->GetCurrnetHealth() <= 0.f)
 	{

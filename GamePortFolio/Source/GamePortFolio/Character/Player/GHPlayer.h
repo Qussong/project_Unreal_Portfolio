@@ -44,15 +44,33 @@ protected:
 protected:
 	virtual void SetDeath() override;
 
-// UI Section
+// Player State Widget Section
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
-	TSubclassOf<class UGHPlayerWidget> PlayerWidgetClass;
+	TSubclassOf<class UGHPlayerWidget> StateWidgetClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
-	TObjectPtr<class UGHPlayerWidget> PlayerWidgetInstance;
+	TObjectPtr<class UGHPlayerWidget> StateWidgetInstance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TSubclassOf<class UGHPlayerWidget> GameOverWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TObjectPtr<class UGHPlayerWidget> GameOverWidgetInstance;
 protected:
-	void UpdateUI();
+	void UpdateStateWidget();
+
+// GameOver Widget Section
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TObjectPtr<class UButton> YesBtn;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TObjectPtr<class UButton> NoBtn;
+protected:
+	UFUNCTION()
+	void YesBtnClicked();
+	UFUNCTION()
+	void NoBtnClicked();
 
 // Inventory Section
 protected:
