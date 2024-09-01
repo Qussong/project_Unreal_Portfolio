@@ -34,4 +34,16 @@ public:
 	FORCEINLINE UAnimMontage* GetNormalAttackMontage() { return NormalAttackMontage; }
 	void PlayNormalAttackMontage();
 
+// KnockDown Section
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack)
+	TObjectPtr<UAnimMontage> KnockDownMontage;
+public:
+	FORCEINLINE UAnimMontage* GetKnockDownMontage() { return KnockDownMontage; }
+	void PlayKnockDownMontage();
+
+protected:
+	//DECLARE_DELEGATE_TwoParams(FOnMontageEnded, UAnimMontage*, bool /*bInterrupted*/)
+	UFUNCTION()
+	void KnockDownMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 };

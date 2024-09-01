@@ -173,6 +173,22 @@ void AGHPlayer::SetDeath()
 	Super::SetDeath();
 
 	UE_LOG(LogTemp, Log, TEXT("Player Death"));
+
+	// 플레이어 충돌 정지
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// 플레이어 컨트롤러 정지
+	AGHPlayerController* PlayerController = Cast<AGHPlayerController>(GetController());
+	if (IsValid(PlayerController))
+	{
+		// 입력 비활성화
+		DisableInput(PlayerController);
+	}
+
+
+	// Dead 애니메이션 재생
+	Anim->PlayKnockDownMontage();
+
 }
 
 void AGHPlayer::UpdateUI()
@@ -428,6 +444,11 @@ float AGHPlayer::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent,
 
 	// UI 업데이트
 	UpdateUI();
+
+	if (Stat->GetCurrnetHealth() <= 0.f)
+	{
+		SetDeath();
+	}
 
 	return 0.0f;
 }

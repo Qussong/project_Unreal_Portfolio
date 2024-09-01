@@ -149,7 +149,11 @@ float AGHNormalMonster::TakeDamage(float DamageAmount, const FDamageEvent& Damag
 
 	AGHNormalMonsterController* MonsterController = Cast<AGHNormalMonsterController>(GetController());
 	MonsterController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsHit"), true);
-	MonsterController->GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), DamageCauser);
+	bool IsMonster = DamageCauser->IsA(AGHMonster::StaticClass());
+	if (false == IsMonster)
+	{
+		MonsterController->GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), DamageCauser);
+	}
 
 	return DamageAmount;
 }
