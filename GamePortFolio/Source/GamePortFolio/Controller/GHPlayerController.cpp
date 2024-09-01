@@ -7,6 +7,9 @@
 #include "NiagaraFunctionLibrary.h"
 #include "NiagaraComponent.h"
 
+#include "Character/Player/GHPlayer.h"
+#include "GameFramework/SpringArmComponent.h"
+
 AGHPlayerController::AGHPlayerController()
 {
 }
@@ -19,13 +22,11 @@ void AGHPlayerController::BeginPlay()
     bShowMouseCursor = IsShowMouseCursor;
     bEnableClickEvents = IsEnableClickEvents;
     bEnableMouseOverEvents = IsEnableMouseOverEvents;
-
 }
 
 void AGHPlayerController::GetLocationUnderCursor()
 {
 	FHitResult HitResult;
-	//ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECC_Visibility);
 	ETraceTypeQuery TraceType = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel7);
 	isHit = GetHitResultUnderCursorByChannel(TraceType, true, HitResult);
 	if (isHit)
@@ -60,6 +61,22 @@ void AGHPlayerController::Rotate()
 	FRotator TargetRotation = Direction.Rotation();
 
 	GetPawn()->SetActorRotation(FRotator(0.f, TargetRotation.Yaw, 0.f));
-
 	//UE_LOG(LogTemp, Log, TEXT("The float value is: %s"), *TargetRotation.ToString());
+}
+
+void AGHPlayerController::ZoomIn(float DeltaTime)
+{
+	APawn* PossessedPawn = GetPawn();
+	AGHPlayer* PlayerChar = Cast<AGHPlayer>(PossessedPawn);
+
+	if (IsValid(PlayerChar))
+	{
+		USpringArmComponent* CameraBoom = PlayerChar->GetCameraBoom();
+		
+		float CurrentArmLength = CameraBoom->TargetArmLength;
+		float TargetArmLength = 400.0f; // 원하는 줌 인 길이
+		float SmoothSpeed = 6.0f; // 스무딩 속도
+
+		CameraBoom->TargetArmLength = FMath::FInterpTo(CurrentArmLength, TargetArmLength, DeltaTime, SmoothSpeed);
+	}
 }

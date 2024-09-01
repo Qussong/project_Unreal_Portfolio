@@ -23,8 +23,8 @@
 #include "Sound/SoundCue.h"
 #include "Components/TextBlock.h"
 #include "Particles/ParticleSystem.h"
-
 #include "Components/Button.h"
+
 
 AGHPlayer::AGHPlayer()
 {
@@ -79,18 +79,28 @@ AGHPlayer::AGHPlayer()
 		IMC = IMCRef.Object;
 	}
 
-	// UI Section
+	// Player State Widget Section
 	static ConstructorHelpers::FClassFinder<UGHPlayerWidget>
 		StateWidgetRef(TEXT("/Game/Gihoon/UI/WB_Player.WB_Player_C"));
 	if (StateWidgetRef.Succeeded())
 	{
 		StateWidgetClass = StateWidgetRef.Class;
 	}
+
+	// GameOver Widget Section
 	static ConstructorHelpers::FClassFinder<UGHPlayerWidget>
 		GameOverWidgetRef(TEXT("/Game/Gihoon/UI/WB_GameOver.WB_GameOver_C"));
 	if (GameOverWidgetRef.Succeeded())
 	{
 		GameOverWidgetClass = GameOverWidgetRef.Class;
+	}
+
+	// YouDie Widget Section
+	static ConstructorHelpers::FClassFinder<UGHPlayerWidget>
+		YouDieWidgetRef(TEXT("/Game/Gihoon/UI/WB_Youdie.WB_Youdie_C"));
+	if (YouDieWidgetRef.Succeeded())
+	{
+		YouDieWidgetClass = YouDieWidgetRef.Class;
 	}
 
 	// Inventory Section
@@ -124,21 +134,31 @@ void AGHPlayer::BeginPlay()
 
 	// IMC Section
 	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
-	UEnhancedInputLocalPlayerSubsystem* Subsystem =
-		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
-	if (IsValid(Subsystem))
+	if (IsValid(PlayerController))
 	{
-		Subsystem->AddMappingContext(IMC, 0);
+		UEnhancedInputLocalPlayerSubsystem* Subsystem =
+			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+		if (IsValid(Subsystem))
+		{
+			Subsystem->AddMappingContext(IMC, 0);
+		}
+
+		AGHPlayerController* CustomController = Cast<AGHPlayerController>(PlayerController);
+		if (IsValid(CustomController))
+		{
+			MyController = CustomController;
+		}
 	}
 
-	// UI Section
+	// Player State Widget Section
 	if (IsValid(StateWidgetClass))
 	{
 		StateWidgetInstance = CreateWidget<UGHPlayerWidget>(GetWorld(), StateWidgetClass);
 		StateWidgetInstance->AddToViewport();
 		UpdateStateWidget();
 	}
-
+	
+	// GameOver Widget Section
 	if (IsValid(GameOverWidgetClass))
 	{
 		GameOverWidgetInstance = CreateWidget<UGHPlayerWidget>(GetWorld(), GameOverWidgetClass);
@@ -146,6 +166,14 @@ void AGHPlayer::BeginPlay()
 		NoBtn = Cast<UButton>(GameOverWidgetInstance->GetWidgetFromName(TEXT("NoBtn")));
 		YesBtn->OnClicked.AddDynamic(this, &AGHPlayer::YesBtnClicked);
 		NoBtn->OnClicked.AddDynamic(this, &AGHPlayer::NoBtnClicked);
+	}
+
+	// YouDie Widget Section
+	if (IsValid(YouDieWidgetClass))
+	{
+		YouDieWidgetInstance = CreateWidget<UGHPlayerWidget>(GetWorld(), YouDieWidgetClass);
+		MainBtn = Cast<UButton>(YouDieWidgetInstance->GetWidgetFromName(TEXT("MainBtn")));
+		MainBtn->OnClicked.AddDynamic(this, &AGHPlayer::MainBtnClicked);
 	}
 
 	// Anim Section
@@ -157,6 +185,10 @@ void AGHPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (MyController->IsZoomIn())
+	{
+		MyController->ZoomIn(DeltaTime);
+	}
 }
 
 void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -194,10 +226,10 @@ void AGHPlayer::SetDeath()
 	AGHPlayerController* PlayerController = Cast<AGHPlayerController>(GetController());
 	if (IsValid(PlayerController) && IsValid(GameOverWidgetInstance))
 	{
-		// GameOver UI 출력
+		// GameOver Widget 출력
 		GameOverWidgetInstance->AddToViewport();
 
-		// UI 입력으로 변경
+		// 입력 타깃 변경 : Game -> GameOver Widget
 		FInputModeUIOnly InputUIMode;
 		InputUIMode.SetWidgetToFocus(GameOverWidgetInstance->TakeWidget());
 		PlayerController->SetInputMode(InputUIMode);
@@ -218,8 +250,6 @@ void AGHPlayer::UpdateStateWidget()
 	UGHPlayerStatComponent* PlayerStat = Cast<UGHPlayerStatComponent>(Stat);
 	if (IsValid(StateWidgetInstance) && IsValid(PlayerStat))
 	{
-		//StateWidgetInstance->AddToViewport();
-
 		StateWidgetInstance->GetHealthBar()->SetPercent(PlayerStat->GetCurrnetHealth() / PlayerStat->GetMaxHealth());
 		StateWidgetInstance->GetManaBar()->SetPercent(PlayerStat->GetCurrentMana() / PlayerStat->GetMaxMana());
 		StateWidgetInstance->GetStaminaBar()->SetPercent(PlayerStat->GetCurrentStamina() / PlayerStat->GetMaxStamina());
@@ -239,11 +269,53 @@ void AGHPlayer::UpdateStateWidget()
 void AGHPlayer::YesBtnClicked()
 {
 	UE_LOG(LogTemp, Log, TEXT("Click Yes Btn"));
+
+	// 현재 레벨로 이동
+	UGameplayStatics::OpenLevel(this, FName("CurrentLevel"));
+
+	// 입력 타깃 변경 : GameOver Widget -> Game
+	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		FInputModeGameOnly InputMode;
+		InputMode.SetConsumeCaptureMouseDown(false);
+		PlayerController->SetInputMode(InputMode);
+	}
 }
 
 void AGHPlayer::NoBtnClicked()
 {
 	UE_LOG(LogTemp, Log, TEXT("Click No Btn"));
+
+	// 플레이어 컨트롤러 타깃 변경
+	AGHPlayerController* PlayerController = Cast<AGHPlayerController>(GetController());
+	if (IsValid(PlayerController) && IsValid(YouDieWidgetInstance))
+	{
+		// Platyer State Widget 제거
+		StateWidgetInstance->RemoveFromParent();
+
+		// GameOver Widget 제거
+		GameOverWidgetInstance->RemoveFromParent();
+
+		// YouDie Widget 출력
+		YouDieWidgetInstance->AddToViewport();
+
+		// 입력 타깃 변경 : GameOver Widget -> YouDie Widget
+		FInputModeUIOnly InputUIMode;
+		InputUIMode.SetWidgetToFocus(YouDieWidgetInstance->TakeWidget());
+		PlayerController->SetInputMode(InputUIMode);
+	}
+
+	// Player 클로즈업
+	MyController->SetZoomIn(true);
+	// Dead 애니메이션 재생
+	Anim->PlayDeathMontage();
+
+}
+
+void AGHPlayer::MainBtnClicked()
+{
+	UE_LOG(LogTemp, Log, TEXT("Click Main Btn"));
 }
 
 UChildActorComponent* AGHPlayer::FindChildActorMap(FName Name)

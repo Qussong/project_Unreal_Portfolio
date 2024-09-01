@@ -27,6 +27,10 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+// Controller Section
+protected:
+	TObjectPtr<class AGHPlayerController> MyController;
+
 // Anim Section
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Anim)
@@ -39,6 +43,8 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera)
 	TObjectPtr<class UCameraComponent>	FollowCamera;
+public:
+	USpringArmComponent* GetCameraBoom() { return CameraBoom; }
 
 // Death Section
 protected:
@@ -52,25 +58,42 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	TObjectPtr<class UGHPlayerWidget> StateWidgetInstance;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
-	TSubclassOf<class UGHPlayerWidget> GameOverWidgetClass;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
-	TObjectPtr<class UGHPlayerWidget> GameOverWidgetInstance;
 protected:
 	void UpdateStateWidget();
 
 // GameOver Widget Section
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TSubclassOf<class UGHPlayerWidget> GameOverWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TObjectPtr<class UGHPlayerWidget> GameOverWidgetInstance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	TObjectPtr<class UButton> YesBtn;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	TObjectPtr<class UButton> NoBtn;
 protected:
 	UFUNCTION()
 	void YesBtnClicked();
+
 	UFUNCTION()
 	void NoBtnClicked();
+
+// YouDie Widget Section
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TSubclassOf<class UGHPlayerWidget> YouDieWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TObjectPtr<class UGHPlayerWidget> YouDieWidgetInstance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TObjectPtr<class UButton> MainBtn;
+protected:
+	UFUNCTION()
+	void MainBtnClicked();
 
 // Inventory Section
 protected:

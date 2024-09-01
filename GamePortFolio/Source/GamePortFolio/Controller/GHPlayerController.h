@@ -44,4 +44,13 @@ public:
 public:
 	void Rotate();
 
+// Zoom In
+private:
+	bool ZoomInFlag = false;
+public:
+	void SetZoomIn(bool flag) { ZoomInFlag = flag; }
+	bool IsZoomIn() { return ZoomInFlag; }
+	void ZoomIn(float DeltaTime);
+
+
 };

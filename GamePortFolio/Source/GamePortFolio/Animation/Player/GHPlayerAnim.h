@@ -41,5 +41,9 @@ protected:
 public:
 	FORCEINLINE UAnimMontage* GetKnockDownMontage() { return KnockDownMontage; }
 	void PlayKnockDownMontage();
-
+	void PlayDeathMontage();
+protected:
+	void SetWhenStopMontage(float CallTime);	// 인자에 해당하는 시간후에 몽타주 업데이트 멈춤
+private:
+	void MontageStop();
 };
