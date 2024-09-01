@@ -8,20 +8,16 @@ UGHBaseStatComponent::UGHBaseStatComponent()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	// Stat Init Section
-	MaxHealth = 150.f;
-	CurrentHealth = MaxHealth;
-	Level = 1;
-	ATK = 10;
-	DEF = 10;
+	SetMaxHealth(100.f);
+	SetLevel(1);
+	SetATK(10.f);
+	SetDEF(10.f);
 }
-
 
 void UGHBaseStatComponent::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
-
 
 void UGHBaseStatComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {

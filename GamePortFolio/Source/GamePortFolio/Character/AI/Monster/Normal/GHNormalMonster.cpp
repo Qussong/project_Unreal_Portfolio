@@ -6,16 +6,17 @@
 #include "Controller/AI/Monster/Normal/GHNormalMonsterController.h"
 #include "Components/CapsuleComponent.h"
 #include "Animation/AI/Monster/GHMonsterAnim.h"
-
 #include "UI/Monster/GHMonsterWidgetComponent.h"
 #include "UI/Monster/GHMonsterWidget.h"
 #include "Components/TextBlock.h"
 #include "Stat/GHBaseStatComponent.h"
 #include "Components/ProgressBar.h"
-
 #include "BehaviorTree/BlackboardComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "Sound/SoundCue.h"
+#include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/GameplayStatics.h"
+
 
 AGHNormalMonster::AGHNormalMonster()
 {
@@ -80,6 +81,11 @@ AGHNormalMonster::AGHNormalMonster()
 	{
 		HitSoundCue = HitSoundRef.Object;
 	}
+
+	// Stat Section
+	Stat->SetMaxHealth(100.f);
+	Stat->SetATK(20.f);
+	Stat->SetDEF(10.f);
 }		
 
 void AGHNormalMonster::BeginPlay()
@@ -146,4 +152,78 @@ float AGHNormalMonster::TakeDamage(float DamageAmount, const FDamageEvent& Damag
 	MonsterController->GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), DamageCauser);
 
 	return DamageAmount;
+}
+
+void AGHNormalMonster::AttackCheck_Begin()
+{
+	HitCheckContainer.Empty();
+	Center = GetMesh()->GetSocketLocation(FName("RightHandSocket"));
+}
+
+void AGHNormalMonster::AttackCheck_Tick()
+{
+	TArray<AActor*> OverlappedActors;
+	TArray<AActor*> IgnoreActors;
+	IgnoreActors.Add(this);
+
+	bool IsHit = UKismetSystemLibrary::SphereOverlapActors(
+		GetWorld(),
+		Center,
+		Radius,
+		TArray<TEnumAsByte<EObjectTypeQuery>>(), // 체크할 오브젝트 타입들
+		nullptr,			// 필터할 클래스, nullptr이면 모든 클래스 포함
+		IgnoreActors,		// 무시할 액터들
+		OverlappedActors	// 결과로 반환될 액터들
+	);
+
+	if (IsHit)
+	{
+		Hit(OverlappedActors);
+#if ENABLE_DRAW_DEBUG
+		DrawDebugSphere(
+			GetWorld(),		// 월드 컨텍스트
+			Center,			// 구의 중심
+			Radius,         // 구의 반지름
+			3,              // 구의 세그먼트 수 (더 높은 값은 더 원에 가까운 구를 만듭니다)
+			FColor::Red,	// 구의 색상
+			false,          // 지속 시간 동안 표시될 것인지 여부 (true = 지속, false = 잠시)
+			1.0f            // 지속 시간 (0이면 한 프레임 동안만 표시)
+		);
+#endif
+	}
+	else
+	{
+#if ENABLE_DRAW_DEBUG
+		DrawDebugSphere(GetWorld(), Center,Radius, 3, FColor::Green, false, 1.0f);
+#endif
+	}
+
+	Center = GetMesh()->GetSocketLocation(FName("RightHandSocket"));
+}
+
+void AGHNormalMonster::Hit(TArray<AActor*>& HitResults)
+{
+	// 오버랩된 액터들에 대해 처리
+	for (AActor* Hitter : HitResults)
+	{
+		bool IsContain = HitCheckContainer.Contains(Hitter);
+		if (false == IsContain)
+		{
+			HitCheckContainer.Add(Hitter);
+			
+			// 데미지 처리
+			HitCheckContainer.Add(Hitter);
+			UGameplayStatics::ApplyDamage(Hitter, Stat->GetATK(), GetController(), this, UDamageType::StaticClass());
+
+			// 파티클 처리
+			UParticleSystem* HitEffect = Cast<AGHCharacterBase>(Hitter)->GetHitParticle();
+			if (nullptr != HitEffect)
+			{
+				FVector HitLocation = Hitter->GetActorLocation();
+				UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), HitEffect, HitLocation);
+			}
+
+			// 사운드 처리
+		}
+	}
 }

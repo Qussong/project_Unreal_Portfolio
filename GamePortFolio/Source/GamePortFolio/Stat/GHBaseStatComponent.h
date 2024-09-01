@@ -23,11 +23,18 @@ public:
 
 // Health Section
 protected:
-	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = Health)
-	float CurrentHealth;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Health)
 	float MaxHealth;
+	UPROPERTY(Transient, VisibleAnywhere, BlueprintReadOnly, Category = Health)
+	float CurrentHealth = MaxHealth;
+private:
+	FORCEINLINE void SetCurrentHealth(float NewCurHealth) { CurrentHealth = NewCurHealth; }
 public:
+	FORCEINLINE void SetMaxHealth(float NewMaxHealth) 
+	{ 
+		MaxHealth = NewMaxHealth; 
+		SetCurrentHealth(NewMaxHealth);
+	}
 	FORCEINLINE float GetCurrnetHealth() { return CurrentHealth; }
 	FORCEINLINE float GetMaxHealth() { return MaxHealth; }
 	float IncreaeHealth(float Heal);
@@ -38,6 +45,7 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = EXP)
 	int32 Level;
 public:
+	FORCEINLINE void SetLevel(int32 NewLevel) { Level = NewLevel; }
 	FORCEINLINE float GetLevel() { return Level; }
 	FORCEINLINE float UpLevel() { return ++Level; }
 

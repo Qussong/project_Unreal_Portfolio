@@ -19,9 +19,10 @@
 #include "Item/Equip/GHWeapon.h"
 #include "Kismet/GameplayStatics.h"
 #include "Components/ChildActorComponent.h"
-
 #include "Camera/GHCameraShake.h"
 #include "Sound/SoundCue.h"
+#include "Components/TextBlock.h"
+#include "Particles/ParticleSystem.h"
 
 AGHPlayer::AGHPlayer()
 {
@@ -84,12 +85,22 @@ AGHPlayer::AGHPlayer()
 		PlayerWidgetClass = PlayerWidgetRef.Class;
 	}
 
-	// Stat Section
-	Stat = CreateDefaultSubobject<UGHPlayerStatComponent>(TEXT("PlayerStat"));
-	Stat->SetATK(50);
-
 	// Inventory Section
 	Inventory = CreateDefaultSubobject<UGHInventoryComponent>(TEXT("Inventory"));
+
+	// Stat Section
+	Stat = CreateDefaultSubobject<UGHPlayerStatComponent>(TEXT("PlayerStat"));
+	Stat->SetMaxHealth(200.f);
+	Stat->SetATK(20.f);
+	Stat->SetDEF(10.f);
+
+	// Hit Section
+	static ConstructorHelpers::FObjectFinder<UParticleSystem>
+		HitParticleRef(TEXT("/Script/Engine.ParticleSystem'/Game/Realistic_Starter_VFX_Pack_Vol2/Particles/Blood/P_Blood_Splat_Cone.P_Blood_Splat_Cone'"));
+	if (HitParticleRef.Succeeded())
+	{
+		HitParticle = HitParticleRef.Object;
+	}
 
 }
 
@@ -116,16 +127,7 @@ void AGHPlayer::BeginPlay()
 	if (IsValid(PlayerWidgetClass))
 	{
 		PlayerWidgetInstance = CreateWidget<UGHPlayerWidget>(GetWorld(), PlayerWidgetClass);
-		UGHPlayerStatComponent* PlayerStat = Cast<UGHPlayerStatComponent>(Stat);
-		if (IsValid(PlayerWidgetInstance) && IsValid(PlayerStat))
-		{
-			PlayerWidgetInstance->AddToViewport();
-
-			PlayerWidgetInstance->GetHealthBar()->SetPercent(PlayerStat->GetCurrnetHealth() / PlayerStat->GetMaxHealth());
-			PlayerWidgetInstance->GetManaBar()->SetPercent(PlayerStat->GetCurrentMana() / PlayerStat->GetMaxMana());
-			PlayerWidgetInstance->GetStaminaBar()->SetPercent(PlayerStat->GetCurrentStamina() / PlayerStat->GetMaxStamina());
-			PlayerWidgetInstance->GetEXPBar()->SetPercent(PlayerStat->GetCurrentEXP() / PlayerStat->GetMaxEXP());
-		}
+		UpdateUI();
 	}
 
 	// Anim Section
@@ -171,6 +173,29 @@ void AGHPlayer::SetDeath()
 	Super::SetDeath();
 
 	UE_LOG(LogTemp, Log, TEXT("Player Death"));
+}
+
+void AGHPlayer::UpdateUI()
+{
+	UGHPlayerStatComponent* PlayerStat = Cast<UGHPlayerStatComponent>(Stat);
+	if (IsValid(PlayerWidgetInstance) && IsValid(PlayerStat))
+	{
+		PlayerWidgetInstance->AddToViewport();
+
+		PlayerWidgetInstance->GetHealthBar()->SetPercent(PlayerStat->GetCurrnetHealth() / PlayerStat->GetMaxHealth());
+		PlayerWidgetInstance->GetManaBar()->SetPercent(PlayerStat->GetCurrentMana() / PlayerStat->GetMaxMana());
+		PlayerWidgetInstance->GetStaminaBar()->SetPercent(PlayerStat->GetCurrentStamina() / PlayerStat->GetMaxStamina());
+		PlayerWidgetInstance->GetEXPBar()->SetPercent(PlayerStat->GetCurrentEXP() / PlayerStat->GetMaxEXP());
+
+		float CurHp = Stat->GetCurrnetHealth();
+		float MaxHp = Stat->GetMaxHealth();
+		float CurMana = PlayerStat->GetCurrentMana();
+		float MaxMana = PlayerStat->GetMaxMana();
+		PlayerWidgetInstance->GetCurHealthTextBlock()->SetText(FText::AsNumber(CurHp));
+		PlayerWidgetInstance->GetMaxHealthTextBlock()->SetText(FText::AsNumber(MaxHp));
+		PlayerWidgetInstance->GetCurManaTextBlock()->SetText(FText::AsNumber(CurMana));
+		PlayerWidgetInstance->GetMaxManaTextBlock()->SetText(FText::AsNumber(MaxMana));
+	}
 }
 
 UChildActorComponent* AGHPlayer::FindChildActorMap(FName Name)
@@ -323,7 +348,7 @@ void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start
 			if (IsHit)
 			{
 				DrawDebugLine(GetWorld(), Start_V, End_V, FColor::Red, false, 1, 0, 1);
-				Hit(HitResultsVertical);
+				EnemyHit(HitResultsVertical);
 			}
 			else
 			{
@@ -338,12 +363,16 @@ void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start
 
 			if (IsHit)
 			{
+				EnemyHit(HitResultsHorizontal);
+#if ENABLE_DRAW_DEBUG
 				DrawDebugLine(GetWorld(), Start_H, End_H, FColor::Red, false, 1, 0, 1);
-				Hit(HitResultsHorizontal);
+#endif
 			}
 			else
 			{
+#if ENABLE_DRAW_DEBUG
 				DrawDebugLine(GetWorld(), Start_H, End_H, FColor::Green, false, 1, 0, 1);
+#endif
 			}
 
 			// Start_H 위치 설정
@@ -352,7 +381,7 @@ void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start
 	}
 }
 
-void AGHPlayer::Hit(TArray<FHitResult>& HitResults)
+void AGHPlayer::EnemyHit(TArray<FHitResult>& HitResults)
 {
 	for (FHitResult HitResult : HitResults)
 	{
@@ -391,4 +420,14 @@ void AGHPlayer::Hit(TArray<FHitResult>& HitResults)
 	float OuterRadius = 2000.0f;	// 셰이크 강도가 사라지는 외곽 반경 설정
 	float Falloff = 1.0f;	// 셰이크 강도 감소 비율 설정
 	UGameplayStatics::PlayWorldCameraShake(GetWorld(), ShakeClass, Epicenter, InnerRadius, OuterRadius, Falloff);
+}
+
+float AGHPlayer::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	// UI 업데이트
+	UpdateUI();
+
+	return 0.0f;
 }

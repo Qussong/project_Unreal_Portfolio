@@ -45,5 +45,17 @@ protected:
 protected:
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
+// Attack Section
+protected:
+	FVector Center;
+	float Radius = 20.f;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Hit)
+	TSet<AActor*> HitCheckContainer;
+public:
+	void AttackCheck_Begin();
+	void AttackCheck_Tick();
 
+	// Hit Section
+protected:
+	void Hit(TArray<AActor*>& HitResults);
 };

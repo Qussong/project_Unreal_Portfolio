@@ -51,6 +51,8 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	TObjectPtr<class UGHPlayerWidget> PlayerWidgetInstance;
+protected:
+	void UpdateUI();
 
 // Inventory Section
 protected:
@@ -117,6 +119,7 @@ public:
 
 // Hit Section
 protected:
-	void Hit(TArray<FHitResult>& HitResults);
+	void EnemyHit(TArray<FHitResult>& HitResults);
+	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 
 };
