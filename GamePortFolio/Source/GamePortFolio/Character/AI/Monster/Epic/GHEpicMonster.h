@@ -14,4 +14,13 @@ class GAMEPORTFOLIO_API AGHEpicMonster : public AGHMonster
 {
 	GENERATED_BODY()
 	
+public:
+	AGHEpicMonster();
+
+protected:
+	virtual void BeginPlay() override;
+
+public:
+	virtual void Tick(float DeltaTime) override;
+
 };

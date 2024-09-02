@@ -12,14 +12,14 @@
 #include "Stat/GHBaseStatComponent.h"
 #include "Components/ProgressBar.h"
 #include "BehaviorTree/BlackboardComponent.h"
-#include "Particles/ParticleSystem.h"
-#include "Sound/SoundCue.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
 
 AGHNormalMonster::AGHNormalMonster()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	// Controller Section
 	AIControllerClass = AGHNormalMonsterController::StaticClass();
 	AutoPossessAI = EAutoPossessAI::PlacedInWorldOrSpawned;
@@ -49,39 +49,6 @@ AGHNormalMonster::AGHNormalMonster()
 	GetCapsuleComponent()->InitCapsuleSize(30.f, 90.f);
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("MonsterProfile"));
 
-	// UI Section
-	HUDWidgetComp = CreateDefaultSubobject<UGHMonsterWidgetComponent>(TEXT("HUDWidgetComp"));
-	if (IsValid(HUDWidgetComp))
-	{
-		HUDWidgetComp->SetupAttachment(RootComponent);
-		HUDWidgetComp->SetRelativeLocation(FVector(0.f, 0.f, 90.f));
-		HUDWidgetComp->SetVisibility(true);
-		HUDWidgetComp->SetWidgetSpace(EWidgetSpace::Screen);
-		HUDWidgetComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-		static ConstructorHelpers::FClassFinder<UGHMonsterWidget>
-			HUDWidgetRef(TEXT("/Game/Gihoon/UI/WB_MonsterHUD.WB_MonsterHUD_C"));
-		if (HUDWidgetRef.Succeeded())
-		{
-			HUDWidgetComp->SetWidgetClass(HUDWidgetRef.Class);
-		}
-	}
-	
-	// Hit Section
-	static ConstructorHelpers::FObjectFinder<UParticleSystem>
-		HitParticleRef(TEXT("/Script/Engine.ParticleSystem'/Game/Realistic_Starter_VFX_Pack_Vol2/Particles/Blood/P_Blood_Splat_Cone.P_Blood_Splat_Cone'"));
-	if (HitParticleRef.Succeeded())
-	{
-		HitParticle = HitParticleRef.Object;
-	}
-
-	static ConstructorHelpers::FObjectFinder<USoundCue>
-		HitSoundRef(TEXT("/Script/Engine.SoundCue'/Game/Gihoon/Sound/HitSound_Cue.HitSound_Cue'"));
-	if (HitSoundRef.Succeeded())
-	{
-		HitSoundCue = HitSoundRef.Object;
-	}
-
 	// Stat Section
 	Stat->SetMaxHealth(100.f);
 	Stat->SetATK(20.f);
@@ -109,36 +76,6 @@ void AGHNormalMonster::SetDeath()
 	Super::SetDeath();
 
 	HUDWidgetComp->SetVisibility(false);
-}
-
-void AGHNormalMonster::UpdateHUD()
-{
-	UUserWidget* Widget = HUDWidgetComp->GetWidget();
-	if (IsValid(Widget))
-	{
-		UGHMonsterWidget* MonsterWidget = Cast<UGHMonsterWidget>(Widget);
-		if (IsValid(MonsterWidget))
-		{
-			// Progress Bar
-			UProgressBar* HpBar = Cast<UProgressBar>(MonsterWidget->GetWidgetFromName(TEXT("GHHealthBar")));
-			if (IsValid(HpBar))
-			{
-				HpBar->SetPercent(Stat->GetCurrnetHealth() / Stat->GetMaxHealth());
-			}
-
-			// Text Block
-			UTextBlock* CurHpTxtBlock = Cast<UTextBlock>(MonsterWidget->GetWidgetFromName(TEXT("GHCurrentHealth")));
-			UTextBlock* MaxHpTxtBlock = Cast<UTextBlock>(MonsterWidget->GetWidgetFromName(TEXT("GHMaxHealth")));
-			if (IsValid(CurHpTxtBlock) && IsValid(MaxHpTxtBlock))
-			{
-				float CurHp = Stat->GetCurrnetHealth();
-				float MaxHp = Stat->GetMaxHealth();
-
-				CurHpTxtBlock->SetText(FText::AsNumber(CurHp));
-				MaxHpTxtBlock->SetText(FText::AsNumber(MaxHp));
-			}
-		}
-	}
 }
 
 float AGHNormalMonster::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser)

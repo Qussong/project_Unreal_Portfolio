@@ -34,13 +34,6 @@ public:
 protected:
 	virtual void SetDeath() override;
 
-// UI Section
-protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
-	TObjectPtr<class UGHMonsterWidgetComponent> HUDWidgetComp;
-protected:
-	void UpdateHUD();
-
 // Hit Section
 protected:
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;

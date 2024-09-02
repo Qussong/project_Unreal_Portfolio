@@ -49,5 +49,12 @@ public:
 	virtual void SetState(EMonsterState NewState);
 	FORCEINLINE EMonsterState GetState() { return MonsterState; }
 	FORCEINLINE EMonsterState GetPrevState() { return MonsterPrevState; }
+
+// UI Section
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TObjectPtr<class UGHMonsterWidgetComponent> HUDWidgetComp;
+protected:
+	void UpdateHUD();
 	
 };
