@@ -51,7 +51,7 @@ public:
 private:
 	FStatminaUsage StaminaUsage;
 	bool bStaminaRecovery = false;
-	float StaminaRecoveryAmount = 3.f;
+	float StaminaRecoveryAmount = 5.f;
 	void DecreaseStamina(float DeltaTime);
 	void IncreaseStamina(float DeltaTime);
 
