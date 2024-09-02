@@ -39,7 +39,7 @@ AGHPlayer::AGHPlayer()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->SetWorldRotation(FRotator(-50.f, 0.f, 0.f));
-	CameraBoom->TargetArmLength = 1400.f;
+	CameraBoom->TargetArmLength = 1600.f;
 	CameraBoom->bInheritYaw = false;
 	CameraBoom->bInheritPitch = false;
 	CameraBoom->bInheritRoll = false;
