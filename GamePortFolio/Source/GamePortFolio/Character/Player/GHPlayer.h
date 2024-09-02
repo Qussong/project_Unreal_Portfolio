@@ -57,9 +57,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
 	TObjectPtr<class UGHPlayerWidget> StateWidgetInstance;
-
 protected:
 	void UpdateStateWidget();
+public:
+	void UpdateStaminaWidget();
 
 // GameOver Widget Section
 protected:
@@ -145,8 +146,6 @@ protected:
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equip)
 	bool isEquip = false;	// 장비 장착 여부
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Combat)
-	bool isCombat = false;	// 전투 상태 여부
 
 // IA_Normal Attack
 protected:
@@ -157,6 +156,13 @@ protected:
 public:
 	void AttackCheck_Begin(FVector& Start_V, FVector End_V, FVector& Start_H, FVector& End_H);
 	void AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start_H, FVector& End_H);
+
+// IA_Run
+protected:
+	void IA_Run_Started(const FInputActionValue& Value);
+private:
+	float PrevMaxSpeed;
+	bool IsBoost = false;
 
 // Hit Section
 protected:

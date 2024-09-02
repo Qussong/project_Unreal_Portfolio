@@ -189,6 +189,23 @@ void AGHPlayer::Tick(float DeltaTime)
 	{
 		MyController->ZoomIn(DeltaTime);
 	}
+
+	if (IsBoost)
+	{
+		// 스태미나 소모
+		Cast<UGHPlayerStatComponent>(Stat)->UseStamina(EStaminUseType::RUN);
+		// 스태미나 체크
+		bool bRun = Cast<UGHPlayerStatComponent>(Stat)->CheckStamina(EStaminUseType::RUN);
+
+		// Boost 꺼줄지 확인
+		UCharacterMovementComponent* Movement = GetCharacterMovement();
+		if (3.f >= Movement->Velocity.Size()
+			|| false == bRun)
+		{
+			Movement->MaxWalkSpeed = PrevMaxSpeed;
+			IsBoost = false;
+		}
+	}
 }
 
 void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -215,6 +232,8 @@ void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComp->BindAction(PlayerInput->IA_Equip, ETriggerEvent::Started, this, &AGHPlayer::IA_Equip_Started);
 		// Noraml Attack
 		EnhancedInputComp->BindAction(PlayerInput->IA_NormalAttack, ETriggerEvent::Started, this, &AGHPlayer::IA_NormalAttack_Started);
+		// Run
+		EnhancedInputComp->BindAction(PlayerInput->IA_Run, ETriggerEvent::Started, this, &AGHPlayer::IA_Run_Started);
 	}
 }
 
@@ -263,6 +282,15 @@ void AGHPlayer::UpdateStateWidget()
 		StateWidgetInstance->GetMaxHealthTextBlock()->SetText(FText::AsNumber(MaxHp));
 		StateWidgetInstance->GetCurManaTextBlock()->SetText(FText::AsNumber(CurMana));
 		StateWidgetInstance->GetMaxManaTextBlock()->SetText(FText::AsNumber(MaxMana));
+	}
+}
+
+void AGHPlayer::UpdateStaminaWidget()
+{
+	UGHPlayerStatComponent* PlayerStat = Cast<UGHPlayerStatComponent>(Stat);
+	if (IsValid(StateWidgetInstance) && IsValid(PlayerStat))
+	{
+		StateWidgetInstance->GetStaminaBar()->SetPercent(PlayerStat->GetCurrentStamina() / PlayerStat->GetMaxStamina());
 	}
 }
 
@@ -382,13 +410,11 @@ void AGHPlayer::IA_Equip_Started(const FInputActionValue& Value)
 	{
 		Inventory->Armed(FName("Sword"));
 		isEquip = true;
-		isCombat = true;
 	}
 	else
 	{
 		Inventory->DisArmed(FName("Sword"));
 		isEquip = false;
-		isCombat = false;
 	}
 }
 
@@ -397,7 +423,9 @@ void AGHPlayer::IA_NormalAttack_Started(const FInputActionValue& Value)
 	// 장비 장착여부 확인
 	if (isEquip)
 	{
-		isCombat = true;
+		// 스태미나 체크
+		bool bAttack = Cast<UGHPlayerStatComponent>(Stat)->CheckStamina(EStaminUseType::ATTACK);
+		if (false == bAttack) return;
 
 		// 피격대상 컨테이너 비워줌
 		HitCheckContainer.Empty();
@@ -506,6 +534,31 @@ void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start
 			Start_H = End_V;
 		}
 	}
+}
+
+void AGHPlayer::IA_Run_Started(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Log, TEXT("Run"));
+
+	UCharacterMovementComponent* Movement = GetCharacterMovement();
+	if (!IsValid(Movement)) return;
+
+	if (IsBoost)
+	{
+		Movement->MaxWalkSpeed = PrevMaxSpeed;
+		IsBoost = false;
+	}
+	else
+	{
+		float Speed = Movement->Velocity.Size();
+		if (Speed > 3.f)
+		{
+			PrevMaxSpeed = Movement->GetMaxSpeed();
+			Movement->MaxWalkSpeed = PrevMaxSpeed + 300.f;
+			IsBoost = true;
+		}
+	}
+	
 }
 
 void AGHPlayer::EnemyHit(TArray<FHitResult>& HitResults)

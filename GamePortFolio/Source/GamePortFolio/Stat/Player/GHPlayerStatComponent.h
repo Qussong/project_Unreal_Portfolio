@@ -6,6 +6,20 @@
 #include "Stat/GHBaseStatComponent.h"
 #include "GHPlayerStatComponent.generated.h"
 
+UENUM()
+enum class EStaminUseType : uint32
+{
+	RUN = 5,
+	ATTACK = 8,
+	ROLL = 10,
+};
+
+struct FStatminaUsage
+{
+	float Continuous = 0.f;
+	float Once = 0.f;
+};
+
 /**
  * 
  */
@@ -32,6 +46,14 @@ protected:
 public:
 	FORCEINLINE float GetCurrentStamina() { return CurrentStamina; }
 	FORCEINLINE float GetMaxStamina() { return MaxStamina; }
+	void UseStamina(EStaminUseType UseType);
+	bool CheckStamina(EStaminUseType UseType);
+private:
+	FStatminaUsage StaminaUsage;
+	bool bStaminaRecovery = false;
+	float StaminaRecoveryAmount = 5.f;
+	void DecreaseStamina(float DeltaTime);
+	void IncreaseStamina(float DeltaTime);
 
 // Mana Section
 protected:

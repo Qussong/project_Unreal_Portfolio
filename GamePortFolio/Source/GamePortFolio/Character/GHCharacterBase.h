@@ -35,6 +35,8 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Stat)
 	TObjectPtr<class UGHBaseStatComponent> Stat;
+public:
+	UGHBaseStatComponent* GetStat() { return Stat; }
 
 // Team Section
 protected:

@@ -4,6 +4,7 @@
 #include "Animation/Player/GHPlayerAnim.h"
 #include "Character/Player/GHPlayer.h"
 #include "Controller/GHPlayerController.h"
+#include "Stat/Player/GHPlayerStatComponent.h"
 
 UGHPlayerAnim::UGHPlayerAnim()
 {
@@ -34,6 +35,9 @@ void UGHPlayerAnim::PlayNormalAttackMontage()
 
 	// 몽타주 재생중인지 확인
 	if (Montage_IsPlaying(NormalAttackMontage)) return;
+
+	// 스태미나 소모
+	Cast<UGHPlayerStatComponent>(Owner->GetStat())->UseStamina(EStaminUseType::ATTACK);
 
 	// 방향 설정
 	Cast<AGHPlayerController>(Owner->GetController())->GetLocationUnderCursor();	// 마우스의 월드상의 위치 확인

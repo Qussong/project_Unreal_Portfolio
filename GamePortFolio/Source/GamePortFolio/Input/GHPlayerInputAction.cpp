@@ -54,4 +54,11 @@ UGHPlayerInputAction::UGHPlayerInputAction()
 	{
 		IA_NormalAttack = InputActionNormalAttackRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction>
+		InputActionRunRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Gihoon/Input/Action/IA_Run.IA_Run'"));
+	if (InputActionRunRef.Succeeded())
+	{
+		IA_Run = InputActionRunRef.Object;
+	}
 }
