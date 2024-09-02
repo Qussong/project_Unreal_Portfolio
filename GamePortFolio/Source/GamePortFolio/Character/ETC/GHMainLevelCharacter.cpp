@@ -52,12 +52,12 @@ void AGHMainLevelCharacter::BeginPlay()
 		PlayerController->SetInputMode(InputUIMode);
 	}
 
-	// 캐릭터를 하늘을 보게 피치 값을 설정
+	// 캐릭터의 카메라 각도 수정
 	if (PlayerController)
 	{
-		FRotator NewRotation = PlayerController->GetControlRotation();
-		NewRotation.Pitch = 40.0f;
-		PlayerController->SetControlRotation(NewRotation);
+		//FRotator NewRotation = PlayerController->GetControlRotation();
+		//NewRotation.Pitch = 40.0f;
+		//PlayerController->SetControlRotation(NewRotation);
 	}
 
 }
