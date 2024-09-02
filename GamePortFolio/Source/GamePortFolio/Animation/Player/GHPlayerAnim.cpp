@@ -68,7 +68,7 @@ void UGHPlayerAnim::PlayDeathMontage()
 	{
 		Montage_Stop(0.2f);
 		Montage_Play(KnockDownMontage);
-		Montage_JumpToSection(TEXT("KnockDownDead"));
+		Montage_JumpToSection(FName("KnockDownDead"));
 
 		SetWhenStopMontage(1.6f); // 1.6f 초 후에 Montage 업데이트 정지
 	}
@@ -86,4 +86,23 @@ void UGHPlayerAnim::MontageStop()
 {
 	// 애니메이션의 업데이트를 일시적으로 중단
 	GetOwningComponent()->bPauseAnims = true;
+}
+
+void UGHPlayerAnim::PlayRollMontage()
+{
+	// 몽타주 유효성 확인
+	if (!IsValid(RollMontage)) return;
+
+	// 몽타주 재생중인지 확인
+	if (Montage_IsPlaying(RollMontage)) return;
+
+	// 플레이어 이동 (Timeline)
+	Cast<AGHPlayer>(Owner)->StartRollTimeline();
+
+	Montage_Play(RollMontage);
+	if (Owner->GetIsEquip())
+	{
+		Montage_JumpToSection(FName("CombatRoll"));
+	}
+
 }

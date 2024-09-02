@@ -10,8 +10,8 @@ UENUM()
 enum class EStaminUseType : uint32
 {
 	RUN = 5,
-	ATTACK = 8,
-	ROLL = 10,
+	ATTACK = 10,
+	ROLL = 15,
 };
 
 struct FStatminaUsage
@@ -51,7 +51,7 @@ public:
 private:
 	FStatminaUsage StaminaUsage;
 	bool bStaminaRecovery = false;
-	float StaminaRecoveryAmount = 5.f;
+	float StaminaRecoveryAmount = 3.f;
 	void DecreaseStamina(float DeltaTime);
 	void IncreaseStamina(float DeltaTime);
 

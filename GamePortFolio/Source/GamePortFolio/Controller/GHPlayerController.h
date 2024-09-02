@@ -35,6 +35,7 @@ protected:
 public:
 	bool isHit = false;		// 마우스 커서 충돌여부
 	FVector Destination;	// 마우스 커서 충돌위치 = 플레이어 목적지
+	FVector Direction;		// 플레이어 -> 마우스커서 방향 (Z = 0.f)
 public:
 	void GetLocationUnderCursor();
 	void Follow();

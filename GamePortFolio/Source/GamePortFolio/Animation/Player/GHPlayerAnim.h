@@ -36,7 +36,7 @@ public:
 
 // KnockDown Section
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Death)
 	TObjectPtr<UAnimMontage> KnockDownMontage;
 public:
 	FORCEINLINE UAnimMontage* GetKnockDownMontage() { return KnockDownMontage; }
@@ -46,4 +46,12 @@ protected:
 	void SetWhenStopMontage(float CallTime);	// 인자에 해당하는 시간후에 몽타주 업데이트 멈춤
 private:
 	void MontageStop();
+
+// Roll Section
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Roll)
+	TObjectPtr<UAnimMontage> RollMontage;
+
+public:
+	void PlayRollMontage();
 };

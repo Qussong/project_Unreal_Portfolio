@@ -42,4 +42,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Input)
 	TObjectPtr<class UInputAction> IA_Run;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Input)
+	TObjectPtr<class UInputAction> IA_Roll;
+
 };

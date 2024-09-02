@@ -25,6 +25,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Components/Button.h"
 
+//#include "Components/TimelineComponent.h"
 
 AGHPlayer::AGHPlayer()
 {
@@ -179,18 +180,23 @@ void AGHPlayer::BeginPlay()
 	// Anim Section
 	Anim = Cast<UGHPlayerAnim>(GetMesh()->GetAnimInstance());
 
+	// Roll Section (Timeline)
+	RollSetting();
+
 }
 
 void AGHPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// Death Widget Section
 	if (MyController->IsZoomIn())
 	{
 		MyController->ZoomIn(DeltaTime);
 	}
 
-	if (IsBoost)
+	// Run Section
+	if (bBoost)
 	{
 		// 스태미나 소모
 		Cast<UGHPlayerStatComponent>(Stat)->UseStamina(EStaminUseType::RUN);
@@ -203,9 +209,12 @@ void AGHPlayer::Tick(float DeltaTime)
 			|| false == bRun)
 		{
 			Movement->MaxWalkSpeed = PrevMaxSpeed;
-			IsBoost = false;
+			bBoost = false;
 		}
 	}
+
+	// Roll Section
+	TimelineRoll.TickTimeline(DeltaTime);
 }
 
 void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -234,6 +243,8 @@ void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		EnhancedInputComp->BindAction(PlayerInput->IA_NormalAttack, ETriggerEvent::Started, this, &AGHPlayer::IA_NormalAttack_Started);
 		// Run
 		EnhancedInputComp->BindAction(PlayerInput->IA_Run, ETriggerEvent::Started, this, &AGHPlayer::IA_Run_Started);
+		// Roll
+		EnhancedInputComp->BindAction(PlayerInput->IA_Roll, ETriggerEvent::Started, this, &AGHPlayer::IA_Roll_Started);
 	}
 }
 
@@ -406,22 +417,21 @@ void AGHPlayer::IA_Equip_Started(const FInputActionValue& Value)
 {
 	if (ChildActorMap.IsEmpty()) return;
 
-	if (false == isEquip)
+	if (false == bEquip)
 	{
-		Inventory->Armed(FName("Sword"));
-		isEquip = true;
+		bEquip = Inventory->Armed(FName("Sword"));
 	}
 	else
 	{
-		Inventory->DisArmed(FName("Sword"));
-		isEquip = false;
+		if(Inventory->DisArmed(FName("Sword")))
+			bEquip = false;
 	}
 }
 
 void AGHPlayer::IA_NormalAttack_Started(const FInputActionValue& Value)
 {
 	// 장비 장착여부 확인
-	if (isEquip)
+	if (bEquip)
 	{
 		// 스태미나 체크
 		bool bAttack = Cast<UGHPlayerStatComponent>(Stat)->CheckStamina(EStaminUseType::ATTACK);
@@ -473,7 +483,7 @@ void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start
 {
 	if (this == nullptr) return;
 
-	if (isEquip)
+	if (bEquip)
 	{
 		UChildActorComponent** SwordActorComp = ChildActorMap.Find(FName("Sword"));
 		if (nullptr != SwordActorComp)
@@ -538,15 +548,13 @@ void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start
 
 void AGHPlayer::IA_Run_Started(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Log, TEXT("Run"));
-
 	UCharacterMovementComponent* Movement = GetCharacterMovement();
 	if (!IsValid(Movement)) return;
 
-	if (IsBoost)
+	if (bBoost)
 	{
 		Movement->MaxWalkSpeed = PrevMaxSpeed;
-		IsBoost = false;
+		bBoost = false;
 	}
 	else
 	{
@@ -555,11 +563,85 @@ void AGHPlayer::IA_Run_Started(const FInputActionValue& Value)
 		{
 			PrevMaxSpeed = Movement->GetMaxSpeed();
 			Movement->MaxWalkSpeed = PrevMaxSpeed + 300.f;
-			IsBoost = true;
+			bBoost = true;
 		}
 	}
 	
 }
+
+void AGHPlayer::IA_Roll_Started(const FInputActionValue& Value)
+{
+	// 스태미나 체크
+	bool bRoll = Cast<UGHPlayerStatComponent>(Stat)->CheckStamina(EStaminUseType::ROLL);
+	if (false == bRoll) return;
+
+	// Roll 애니메이션 재생
+	Anim->PlayRollMontage();
+}
+
+void AGHPlayer::RollSetting()
+{
+	if (nullptr != RollCurve)
+	{
+		FOnTimelineFloat RollStartCallback;
+		RollStartCallback.BindUFunction(this, FName("RollStart"));
+		TimelineRoll.AddInterpFloat(RollCurve, RollStartCallback);
+
+		FOnTimelineEvent RollEndCallback;
+		RollEndCallback.BindUFunction(this, FName("RollEnd"));
+		TimelineRoll.SetTimelineFinishedFunc(RollEndCallback);
+
+		TimelineRoll.SetLooping(false);
+	}
+}
+
+void AGHPlayer::StartRollTimeline()
+{
+	// 스태미나 소모
+	Cast<UGHPlayerStatComponent>(Stat)->UseStamina(EStaminUseType::ROLL);
+
+	// 출발지점 저장
+	RollStartPos = GetActorLocation();
+
+	// 마우스 방향으로 플레이어 회전
+	AGHPlayerController* PlayerController = Cast<AGHPlayerController>(GetController());
+	if (nullptr == PlayerController) return;
+
+	PlayerController->GetLocationUnderCursor();		// 마우스의 월드상의 위치 확인
+	PlayerController->Rotate();						// Player 회전
+	RollDirection = PlayerController->Direction;	// Roll 수행 방향 저장
+
+	// Roll 수행중 플레이어의 조작에 의한 움직인 막음
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+
+	// 타임라인을 처음부터 재생 (Roll)
+	TimelineRoll.PlayFromStart();
+}
+
+void AGHPlayer::RollStart(float Value)
+{
+	// 이동 거리 계산
+	FVector NewLocation = RollStartPos + (RollDirection * RollDistance * Value);
+
+	// 캐릭터 위치 업데이트
+	SetActorLocation(NewLocation);
+}
+
+void AGHPlayer::RollEnd()
+{
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+	ResetRollTimeline();
+}
+
+void AGHPlayer::ResetRollTimeline()
+{
+	// 출발지점 초기화
+	RollStartPos = FVector::ZeroVector;
+
+	// 타임라인을 중지하고 처음으로 초기화 (Roll)
+	TimelineRoll.Stop();
+}
+
 
 void AGHPlayer::EnemyHit(TArray<FHitResult>& HitResults)
 {

@@ -61,4 +61,11 @@ UGHPlayerInputAction::UGHPlayerInputAction()
 	{
 		IA_Run = InputActionRunRef.Object;
 	}
+
+	static ConstructorHelpers::FObjectFinder<UInputAction>
+		InputActionRollRef(TEXT("/Script/EnhancedInput.InputAction'/Game/Gihoon/Input/Action/IA_Roll.IA_Roll'"));
+	if (InputActionRollRef.Succeeded())
+	{
+		IA_Roll = InputActionRollRef.Object;
+	}
 }

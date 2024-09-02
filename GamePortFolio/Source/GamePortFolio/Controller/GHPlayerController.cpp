@@ -39,7 +39,8 @@ void AGHPlayerController::Follow()
 {
 	FVector From = GetPawn()->GetActorLocation();
 	FVector To = Destination;
-	FVector Direction = (To - From).GetSafeNormal();
+	Direction = (To - From).GetSafeNormal();
+	Direction.Z = 0.f;
 
 	GetPawn()->AddMovementInput(Direction, 1.f, false);
 }
@@ -57,11 +58,11 @@ void AGHPlayerController::Rotate()
 {
 	FVector From = GetPawn()->GetActorLocation();
 	FVector To = Destination;
-	FVector Direction = (To - From).GetSafeNormal();
+	Direction = (To - From).GetSafeNormal();
+	Direction.Z = 0.f;
 	FRotator TargetRotation = Direction.Rotation();
 
 	GetPawn()->SetActorRotation(FRotator(0.f, TargetRotation.Yaw, 0.f));
-	//UE_LOG(LogTemp, Log, TEXT("The float value is: %s"), *TargetRotation.ToString());
 }
 
 void AGHPlayerController::ZoomIn(float DeltaTime)
@@ -75,7 +76,7 @@ void AGHPlayerController::ZoomIn(float DeltaTime)
 		
 		float CurrentArmLength = CameraBoom->TargetArmLength;
 		float TargetArmLength = 400.0f; // 원하는 줌 인 길이
-		float SmoothSpeed = 6.0f; // 스무딩 속도
+		float SmoothSpeed = 6.0f;		// 스무딩 속도
 
 		CameraBoom->TargetArmLength = FMath::FInterpTo(CurrentArmLength, TargetArmLength, DeltaTime, SmoothSpeed);
 	}

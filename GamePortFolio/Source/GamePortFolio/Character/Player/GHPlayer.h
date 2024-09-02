@@ -6,6 +6,7 @@
 #include "Character/GHCharacterBase.h"
 #include "InputActionValue.h"
 #include "InputAction.h"
+#include "Components/TimelineComponent.h"
 #include "GHPlayer.generated.h"
 
 /**
@@ -143,9 +144,11 @@ protected:
 // IA_Equip
 protected:
 	void IA_Equip_Started(const FInputActionValue& Value);
-public:
+protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Equip)
-	bool isEquip = false;	// 장비 장착 여부
+	uint8 bEquip : 1 = false;	// 장비 장착 여부
+public:
+	bool GetIsEquip() { return bEquip; }
 
 // IA_Normal Attack
 protected:
@@ -162,7 +165,29 @@ protected:
 	void IA_Run_Started(const FInputActionValue& Value);
 private:
 	float PrevMaxSpeed;
-	bool IsBoost = false;
+	bool bBoost = false;
+
+// IA_Roll
+private:
+	FTimeline TimelineRoll;
+	FVector RollStartPos;
+	FVector RollDirection;
+	float	RollDistance = 500.f;	
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Roll)
+	TObjectPtr<UCurveFloat> RollCurve;
+private:
+	void RollSetting();
+protected:
+	void IA_Roll_Started(const FInputActionValue& Value);
+public:
+	void StartRollTimeline();
+protected:
+	UFUNCTION()
+	void RollStart(float Value);
+	UFUNCTION()
+	void RollEnd();
+	void ResetRollTimeline();
 
 // Hit Section
 protected:
