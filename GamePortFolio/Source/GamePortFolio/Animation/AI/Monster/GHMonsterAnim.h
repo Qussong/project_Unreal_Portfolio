@@ -14,13 +14,19 @@ enum class EMonsterAnimState : uint8
 	WALK,
 	RUN,
 	ATTACK,
-	ATTACK2,
 	DEATH,
 	DEATH2,
 	ANGRY,
 	HIT,
 	// Normal
 	DETECT,
+	// Epic
+	WAIT,
+	READYFIGHT,
+	BACKSTEP,
+	BOUNDARY,
+	ATTACK2,
+	ATTACK3,
 };
 
 /**
@@ -45,5 +51,6 @@ protected:
 	EMonsterAnimState AnimState = EMonsterAnimState::IDLE;
 public:
 	FORCEINLINE EMonsterAnimState GetMonsterAnimState() { return AnimState; }
-	FORCEINLINE void SetMonsterAnimState(EMonsterAnimState NewState) { AnimState = NewState; }
+	FORCEINLINE virtual void SetMonsterAnimState(EMonsterAnimState NewState) { AnimState = NewState; }
+
 };

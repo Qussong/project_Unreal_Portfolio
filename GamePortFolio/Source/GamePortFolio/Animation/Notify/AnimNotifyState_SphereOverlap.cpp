@@ -3,16 +3,23 @@
 
 #include "Animation/Notify/AnimNotifyState_SphereOverlap.h"
 #include "Character/AI/Monster/Normal/GHNormalMonster.h"
+#include "Character/AI/Monster/Epic/GHEpicMonster.h"
 
 void UAnimNotifyState_SphereOverlap::NotifyBegin(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation, float TotalDuration, const FAnimNotifyEventReference& EventReference)
 {
 	Super::NotifyBegin(MeshComp, Animation, TotalDuration, EventReference);
 
 	AActor* Owner = MeshComp->GetOwner();
-	AGHNormalMonster* NormalMonster = Cast<AGHNormalMonster>(Owner);
-	if (IsValid(NormalMonster))
+	Normal = Cast<AGHNormalMonster>(Owner);
+	Epic = Cast<AGHEpicMonster>(Owner);
+
+	if (IsValid(Normal))
 	{
-		NormalMonster->AttackCheck_Begin();
+		Normal->AttackCheck_Begin();
+	}
+	if (IsValid(Epic))
+	{
+		Epic->AttackCheck_Begin2();
 	}
 }
 
@@ -20,10 +27,13 @@ void UAnimNotifyState_SphereOverlap::NotifyTick(USkeletalMeshComponent* MeshComp
 {
 	Super::NotifyTick(MeshComp, Animation, FrameDeltaTime, EventReference);
 
-	AActor* Owner = MeshComp->GetOwner();
-	AGHNormalMonster* NormalMonster = Cast<AGHNormalMonster>(Owner);
-	if (IsValid(NormalMonster))
+	if (IsValid(Normal))
 	{
-		NormalMonster->AttackCheck_Tick();
+		Normal->AttackCheck_Tick();
+	}
+
+	if (IsValid(Epic))
+	{
+		Epic->AttackCheck_Tick2();
 	}
 }

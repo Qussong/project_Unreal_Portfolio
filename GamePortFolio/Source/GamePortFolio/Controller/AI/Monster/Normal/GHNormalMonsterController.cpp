@@ -4,7 +4,6 @@
 #include "Controller/AI/Monster/Normal/GHNormalMonsterController.h"
 #include "BehaviorTree/BlackboardData.h"
 #include "BehaviorTree/BehaviorTree.h"
-
 #include "Perception/AIPerceptionComponent.h"
 #include "Perception/AISenseConfig_Sight.h"
 #include "BehaviorTree/BlackboardComponent.h"
@@ -34,7 +33,7 @@ AGHNormalMonsterController::AGHNormalMonsterController()
 	// SenseConfig_Sight Section
 	SightConfig = CreateDefaultSubobject<UAISenseConfig_Sight>(TEXT("MonsterSight"));
 	SightConfig->SightRadius = 800.f;
-	SightConfig->LoseSightRadius = 1200.f;
+	SightConfig->LoseSightRadius = 1500.f;
 	SightConfig->PeripheralVisionAngleDegrees = 45.f;
 	SightConfig->DetectionByAffiliation.bDetectEnemies = true;
 	SightConfig->DetectionByAffiliation.bDetectNeutrals = true;
@@ -90,18 +89,7 @@ void AGHNormalMonsterController::OnTargetDetect(AActor* Target, FAIStimulus Stim
 			Blackboard->SetValueAsObject(TEXT("Target"), Target);
 		}
 	}
-	else
-	{
-		// Target 감지 실패한 경우
-		UObject* Target = Blackboard->GetValueAsObject(FName("Target"));
-		if (nullptr != Target)
-		{
-			// 기존에 Target이 존재했다면 PreTarget으로 전환해준다.
-			Blackboard->SetValueAsObject(FName("PreTarget"), Target);
-		}
 
-		Blackboard->SetValueAsObject(FName("Target"), nullptr);
-	}
 }
 
 void AGHNormalMonsterController::OnTargetForget(AActor* Target)

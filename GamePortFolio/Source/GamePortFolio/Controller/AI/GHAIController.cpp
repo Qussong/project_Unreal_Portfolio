@@ -35,6 +35,7 @@ void AGHAIController::OnPossess(APawn* InPawn)
 void AGHAIController::OnUnPossess()
 {
 	Super::OnUnPossess();
+
 }
 
 void AGHAIController::RunAI()

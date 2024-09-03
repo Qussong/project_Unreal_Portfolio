@@ -28,6 +28,7 @@ private:
 	float DetectRadius = 500.f;	// Å½Áö ¹Ý°æ
 
 protected:
-	void DetectTarget(UBehaviorTreeComponent& OwnerComp);
+	void DetectTarget_Normal(UBehaviorTreeComponent& OwnerComp, TArray<FOverlapResult>& OverlapResults);
+	void DetectTarget_Epic(UBehaviorTreeComponent& OwnerComp, TArray<FOverlapResult>& OverlapResults);
 
 };

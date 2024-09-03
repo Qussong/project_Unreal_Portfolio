@@ -31,9 +31,12 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UAIPerceptionComponent> MonsterPerception;
-
+	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UAISenseConfig_Sight> SightConfig;
-	TObjectPtr<class UAISenseConfig_Damage> DamageConfig;
+
+public:
+	FORCEINLINE UAISenseConfig_Sight* GetSightConfig() { return SightConfig; }
+
 private:
 	UFUNCTION()
 	void OnTargetDetect(AActor* Target, FAIStimulus Stimulus);

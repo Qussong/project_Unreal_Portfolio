@@ -437,9 +437,6 @@ void AGHPlayer::IA_NormalAttack_Started(const FInputActionValue& Value)
 		bool bAttack = Cast<UGHPlayerStatComponent>(Stat)->CheckStamina(EStaminUseType::ATTACK);
 		if (false == bAttack) return;
 
-		// 피격대상 컨테이너 비워줌
-		HitCheckContainer.Empty();
-
 		// 플레이어 이동 중지
 		GetCharacterMovement()->StopMovementImmediately();
 
@@ -476,6 +473,9 @@ void AGHPlayer::AttackCheck_Begin(FVector& Start_V, FVector End_V, FVector& Star
 		// Start_H, End_H 위치 설정
 		Start_H = End_V;
 		End_H = End_V;
+
+		// 피격대상 컨테이너 비워줌
+		HitCheckContainer.Empty();
 	}
 }
 

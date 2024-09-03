@@ -6,6 +6,9 @@
 #include "AIController.h"
 #include "Character/AI/Monster/GHMonster.h"
 
+#include "Character/AI/Monster/Normal/GHNormalMonster.h"
+#include "Character/AI/Monster/Epic/GHEpicMonster.h"
+
 UBTTask_Idle::UBTTask_Idle()
 {
 	NodeName = TEXT("Idle");
@@ -20,7 +23,12 @@ EBTNodeResult::Type UBTTask_Idle::ExecuteTask(UBehaviorTreeComponent& OwnerComp,
 	Monster = OwnerComp.GetAIOwner()->GetPawn<AGHMonster>();
 	if (IsValid(Monster))
 	{
-		Monster->SetState(EMonsterState::IDLE);
+		if (nullptr != Cast<AGHNormalMonster>(Monster))
+			Monster->SetState(EMonsterState::IDLE);
+
+		if (nullptr != Cast<AGHEpicMonster>(Monster))
+			Monster->SetState(EMonsterState::WAIT);
+
 		return EBTNodeResult::InProgress;
 	}
 

@@ -56,7 +56,7 @@ void AGHMonster::SetDeath()
 {
 	Super::SetDeath();
 
-	UE_LOG(LogTemp, Log, TEXT("Monster Death"));
+	//UE_LOG(LogTemp, Log, TEXT("Monster Death"));
 
 	SetState(EMonsterState::DEATH);
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -72,6 +72,8 @@ void AGHMonster::SetState(EMonsterState NewState)
 {
 	MonsterPrevState = MonsterState;
 	MonsterState = NewState;
+
+	if (nullptr == MonsterAnim) return;
 
 	switch (MonsterState)
 	{
@@ -93,8 +95,28 @@ void AGHMonster::SetState(EMonsterState NewState)
 	case EMonsterState::HIT:
 		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::HIT);
 		break;
+	// Normal
 	case EMonsterState::DETECT:
 		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::DETECT);
+		break;
+	// Epic
+	case EMonsterState::WAIT:
+		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::WAIT);
+		break;
+	case EMonsterState::READYFIGHT:
+		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::READYFIGHT);
+		break;
+	case EMonsterState::BACKSTEP:
+		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::BACKSTEP);
+		break;
+	case EMonsterState::BOUNDARY:
+		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::BOUNDARY);
+		break;
+	case EMonsterState::ATTACK2:
+		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::ATTACK2);
+		break;
+	case EMonsterState::ATTACK3:
+		MonsterAnim->SetMonsterAnimState(EMonsterAnimState::ATTACK3);
 		break;
 	default:
 		//

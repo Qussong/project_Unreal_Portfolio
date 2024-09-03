@@ -14,4 +14,17 @@ class GAMEPORTFOLIO_API AGHEpicMonsterController : public AGHMonsterBaseControll
 {
 	GENERATED_BODY()
 	
+public:
+	AGHEpicMonsterController();
+
+protected:
+	virtual void BeginPlay() override;
+
+public:
+	virtual void Tick(float DeltaTime) override;
+
+protected:
+	virtual void OnPossess(APawn* InPawn) override;	// 컨트롤러가 특정 폰을 소유할 떄 호출
+	virtual void OnUnPossess() override;
+	
 };

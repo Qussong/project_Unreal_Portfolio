@@ -18,6 +18,13 @@ enum class EMonsterState : uint8
 	HIT,
 	// Normal
 	DETECT,
+	// Epic
+	WAIT,
+	READYFIGHT,
+	BACKSTEP,
+	BOUNDARY,
+	ATTACK2,
+	ATTACK3,
 };
 
 /**

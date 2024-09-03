@@ -23,4 +23,11 @@ protected:
 
 private:
 	TObjectPtr<class AGHMonster> Monster;
+	TObjectPtr<class AGHNormalMonster> Normal;
+	TObjectPtr<class AGHEpicMonster> Epic;
+
+// EpickMonster Attack Section
+private :
+	TObjectPtr<APawn> Target;
+	FRotator TargetRotation;
 };
