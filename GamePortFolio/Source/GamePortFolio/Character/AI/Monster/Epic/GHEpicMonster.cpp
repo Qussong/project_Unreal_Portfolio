@@ -117,9 +117,17 @@ float AGHEpicMonster::TakeDamage(float DamageAmount, const FDamageEvent& DamageE
 	UpdateHUD();
 
 	AGHEpicMonsterController* MonsterController = Cast<AGHEpicMonsterController>(GetController());
-	MonsterController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsHit"), true);
+
+	// Hit Section
+	if (MonsterState == EMonsterState::BOUNDARY)
+	{
+		MonsterController->GetBlackboardComponent()->SetValueAsBool(TEXT("IsHit"), true);
+	}
+
+	// Target Setiing
+	AActor* Target = Cast<AActor>(MonsterController->GetBlackboardComponent()->GetValueAsObject(TEXT("Target")));
 	bool IsMonster = DamageCauser->IsA(AGHMonster::StaticClass());
-	if (false == IsMonster)
+	if (nullptr == Target && false == IsMonster)
 	{
 		MonsterController->GetBlackboardComponent()->SetValueAsObject(TEXT("Target"), DamageCauser);
 	}

@@ -191,7 +191,13 @@ protected:
 
 // Hit Section
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TSubclassOf<class UGHPlayerWidget> HitWidgetClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+	TObjectPtr<class UGHPlayerWidget> HitWidgetInstance;
+protected:
 	void EnemyHit(TArray<FHitResult>& HitResults);
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
-
+	void ScheduleWidgetRemoval(UUserWidget* WidgetToRemove, float DelayInSeconds = 1.f);
 };

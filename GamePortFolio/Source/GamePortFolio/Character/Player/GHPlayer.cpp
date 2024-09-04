@@ -120,6 +120,12 @@ AGHPlayer::AGHPlayer()
 	{
 		HitParticle = HitParticleRef.Object;
 	}
+	static ConstructorHelpers::FClassFinder<UGHPlayerWidget>
+		HitWidgetRef(TEXT("/Game/Gihoon/UI/WB_PlayerHit.WB_PlayerHit_C"));
+	if (HitWidgetRef.Succeeded())
+	{
+		HitWidgetClass = HitWidgetRef.Class;
+	}
 
 }
 
@@ -177,12 +183,17 @@ void AGHPlayer::BeginPlay()
 		MainBtn->OnClicked.AddDynamic(this, &AGHPlayer::MainBtnClicked);
 	}
 
+	// Hit Widget Section
+	if (IsValid(HitWidgetClass))
+	{
+		HitWidgetInstance = CreateWidget<UGHPlayerWidget>(GetWorld(), HitWidgetClass);
+	}
+
 	// Anim Section
 	Anim = Cast<UGHPlayerAnim>(GetMesh()->GetAnimInstance());
 
 	// Roll Section (Timeline)
 	RollSetting();
-
 }
 
 void AGHPlayer::Tick(float DeltaTime)
@@ -310,7 +321,10 @@ void AGHPlayer::YesBtnClicked()
 	UE_LOG(LogTemp, Log, TEXT("Click Yes Btn"));
 
 	// 현재 레벨로 이동
-	UGameplayStatics::OpenLevel(this, FName("CurrentLevel"));
+	//FString  CurrentLevel = GetWorld()->GetCurrentLevel()->GetName();
+	FString  CurrentLevel = GetWorld()->GetCurrentLevel()->GetOutermost()->GetName();
+
+	UGameplayStatics::OpenLevel(this, FName(CurrentLevel));
 
 	// 입력 타깃 변경 : GameOver Widget -> Game
 	APlayerController* PlayerController = CastChecked<APlayerController>(GetController());
@@ -355,6 +369,7 @@ void AGHPlayer::NoBtnClicked()
 void AGHPlayer::MainBtnClicked()
 {
 	UE_LOG(LogTemp, Log, TEXT("Click Main Btn"));
+	UGameplayStatics::OpenLevel(this, FName("Level_Main"));
 }
 
 UChildActorComponent* AGHPlayer::FindChildActorMap(FName Name)
@@ -642,7 +657,6 @@ void AGHPlayer::ResetRollTimeline()
 	TimelineRoll.Stop();
 }
 
-
 void AGHPlayer::EnemyHit(TArray<FHitResult>& HitResults)
 {
 	for (FHitResult HitResult : HitResults)
@@ -651,7 +665,7 @@ void AGHPlayer::EnemyHit(TArray<FHitResult>& HitResults)
 		bool isExist = HitCheckContainer.Contains(Hitter);
 		if (false == isExist)
 		{
-			UE_LOG(LogTemp, Log, TEXT("HIT!!"));
+			//UE_LOG(LogTemp, Log, TEXT("HIT!!"));
 
 			// 데미지 처리
 			HitCheckContainer.Add(Hitter);
@@ -688,7 +702,7 @@ float AGHPlayer::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent,
 {
 	Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
 
-	// UI 업데이트
+	// Widget 업데이트
 	UpdateStateWidget();
 
 	if (Stat->GetCurrnetHealth() <= 0.f)
@@ -696,5 +710,26 @@ float AGHPlayer::TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent,
 		SetDeath();
 	}
 
+	// Hit Widget
+	if (IsValid(HitWidgetInstance))
+	{
+		HitWidgetInstance->AddToViewport();
+		ScheduleWidgetRemoval(HitWidgetInstance);
+	}
+
 	return 0.0f;
+}
+
+void AGHPlayer::ScheduleWidgetRemoval(UUserWidget* WidgetToRemove, float DelayInSeconds)
+{
+	FTimerHandle TimerHandle;
+	FTimerDelegate TimerDelegate;
+	TimerDelegate.BindLambda([=]()
+		{
+			if (WidgetToRemove && WidgetToRemove->IsInViewport())
+			{
+				WidgetToRemove->RemoveFromViewport();
+			}
+		});
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, DelayInSeconds, false);
 }
