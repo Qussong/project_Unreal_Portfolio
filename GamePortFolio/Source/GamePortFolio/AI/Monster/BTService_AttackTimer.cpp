@@ -42,19 +42,19 @@ void UBTService_AttackTimer::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* 
 		case 1:
 		{
 			OwnerComp.GetBlackboardComponent()->SetValueAsInt(FName("AttackType"), 1);
-			OwnerComp.GetBlackboardComponent()->SetValueAsFloat(FName("AttackRange"), 300.f);
+			OwnerComp.GetBlackboardComponent()->SetValueAsFloat(FName("AttackRange"), 400.f);
 			break;
 		}
 		case 2 :
 		{
 			OwnerComp.GetBlackboardComponent()->SetValueAsInt(FName("AttackType"), 2);
-			OwnerComp.GetBlackboardComponent()->SetValueAsFloat(FName("AttackRange"), 200.f);
+			OwnerComp.GetBlackboardComponent()->SetValueAsFloat(FName("AttackRange"), 250.f);
 			break;
 		}
 		case 3:
 		{
 			OwnerComp.GetBlackboardComponent()->SetValueAsInt(FName("AttackType"), 3);
-			OwnerComp.GetBlackboardComponent()->SetValueAsFloat(FName("AttackRange"), 200.f);
+			OwnerComp.GetBlackboardComponent()->SetValueAsFloat(FName("AttackRange"), 250.f);
 			break;
 		}
 		}

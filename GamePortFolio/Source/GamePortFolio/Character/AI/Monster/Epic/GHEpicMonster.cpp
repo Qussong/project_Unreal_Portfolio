@@ -65,6 +65,7 @@ AGHEpicMonster::AGHEpicMonster()
 		WeaponActorComp->SetChildActorClass(AGHWeapon::StaticClass());
 		// 초기 트랜스폼 설정
 		WeaponActorComp->SetRelativeLocation(FVector(0.f, 0.f, 0.f));
+		WeaponActorComp->SetRelativeScale3D(FVector(1.5f, 1.5f, 1.5f));
 	}
 
 	// Stat Section

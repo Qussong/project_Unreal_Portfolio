@@ -24,8 +24,8 @@ private:
 	TObjectPtr<class AGHMonster> MonsterPawn;
 	TObjectPtr<UWorld> World;
 
-	FVector Center;				// 탐지할 범위의 중심위치
-	float DetectRadius = 500.f;	// 탐지 반경
+	FVector Center;		// 탐지할 범위의 중심위치
+	float DetectRadius;	// 탐지 반경
 
 protected:
 	void DetectTarget_Normal(UBehaviorTreeComponent& OwnerComp, TArray<FOverlapResult>& OverlapResults);

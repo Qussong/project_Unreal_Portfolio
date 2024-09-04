@@ -16,5 +16,11 @@ class GAMEPORTFOLIO_API AGHGameMode_Main : public AGHGameMode
 
 public:
 	AGHGameMode_Main();
-	
+
+public:
+	virtual void BeginPlay() override;
+
+// BGM Section
+private:
+	TObjectPtr<class USoundBase> BGM_Main;
 };

@@ -26,6 +26,12 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 	MonsterPawn = OwnerComp.GetAIOwner()->GetPawn<AGHMonster>();
 	if (nullptr == MonsterPawn) return;
 
+	AGHNormalMonster* Normal = Cast<AGHNormalMonster>(MonsterPawn);
+	if (IsValid(Normal)) DetectRadius = 600.f;
+
+	AGHEpicMonster* Epic = Cast<AGHEpicMonster>(MonsterPawn);
+	if (IsValid(Epic)) DetectRadius = 1000.f;
+
 	// 빙의된 몬스터가 World 에 속해있는지 확인
 	World = MonsterPawn->GetWorld();
 	if (nullptr == World) return;
@@ -49,9 +55,6 @@ void UBTService_Detect::TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeM
 #endif
 		return;
 	}
-
-	AGHNormalMonster* Normal = Cast<AGHNormalMonster>(MonsterPawn);
-	AGHEpicMonster* Epic = Cast<AGHEpicMonster>(MonsterPawn);
 
 	// Normal Monster 의 Detect System
 	if (nullptr != Normal)
