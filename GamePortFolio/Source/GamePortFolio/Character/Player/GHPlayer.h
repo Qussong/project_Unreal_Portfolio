@@ -159,6 +159,10 @@ protected:
 public:
 	void AttackCheck_Begin(FVector& Start_V, FVector End_V, FVector& Start_H, FVector& End_H);
 	void AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start_H, FVector& End_H);
+protected:
+	struct FEnhancedInputActionValueBinding* AttackActionValue;
+public:
+	FEnhancedInputActionValueBinding* GetAttackActionValue() { return AttackActionValue; }
 
 // IA_Run
 protected:
@@ -200,4 +204,5 @@ protected:
 	void EnemyHit(TArray<FHitResult>& HitResults);
 	virtual float TakeDamage(float DamageAmount, const FDamageEvent& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	void ScheduleWidgetRemoval(UUserWidget* WidgetToRemove, float DelayInSeconds = 1.f);
+
 };

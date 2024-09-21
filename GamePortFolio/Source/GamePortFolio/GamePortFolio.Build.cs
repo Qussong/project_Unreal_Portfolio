@@ -6,6 +6,8 @@ public class GamePortFolio : ModuleRules
 {
 	public GamePortFolio(ReadOnlyTargetRules Target) : base(Target)
 	{
+        PublicDefinitions.Add("ENABLE_DRAW_DEBUG=0");
+
         PublicIncludePaths.AddRange(new string[] { "GamePortFolio" });
 
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;

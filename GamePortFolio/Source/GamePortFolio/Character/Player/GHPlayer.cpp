@@ -251,6 +251,7 @@ void AGHPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		// Equip
 		EnhancedInputComp->BindAction(PlayerInput->IA_Equip, ETriggerEvent::Started, this, &AGHPlayer::IA_Equip_Started);
 		// Noraml Attack
+		AttackActionValue = &EnhancedInputComp->BindActionValue(PlayerInput->IA_NormalAttack);
 		EnhancedInputComp->BindAction(PlayerInput->IA_NormalAttack, ETriggerEvent::Started, this, &AGHPlayer::IA_NormalAttack_Started);
 		// Run
 		EnhancedInputComp->BindAction(PlayerInput->IA_Run, ETriggerEvent::Started, this, &AGHPlayer::IA_Run_Started);
@@ -457,12 +458,10 @@ void AGHPlayer::IA_NormalAttack_Started(const FInputActionValue& Value)
 
 		// 공격 애니메이션 재생
 		Anim->PlayNormalAttackMontage();
-
-		UE_LOG(LogTemp, Log, TEXT("Player Attack"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Log, TEXT("No Weapon"));
+		// No Weapon
 	}
 }
 
@@ -527,12 +526,16 @@ void AGHPlayer::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& Start
 
 			if (IsHit)
 			{
-				DrawDebugLine(GetWorld(), Start_V, End_V, FColor::Red, false, 1, 0, 1);
 				EnemyHit(HitResultsVertical);
+#if ENABLE_DRAW_DEBUG
+				DrawDebugLine(GetWorld(), Start_V, End_V, FColor::Red, false, 1, 0, 1);
+#endif
 			}
 			else
 			{
+#if ENABLE_DRAW_DEBUG
 				DrawDebugLine(GetWorld(), Start_V, End_V, FColor::Green, false, 1, 0, 1);
+#endif
 			}
 
 			// Line2

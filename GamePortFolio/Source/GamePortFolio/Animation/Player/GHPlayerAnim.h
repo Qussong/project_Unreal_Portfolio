@@ -26,13 +26,23 @@ public:
 protected:
 	TObjectPtr<class AGHPlayer> Owner;
 
-// Normal Attack Section
+// Attack Section
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack)
 	TObjectPtr<UAnimMontage> NormalAttackMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Attack)
+	TArray<FName> ComboAttackSectionArray;
+
+private:
+	int32 ComboAttackSection = 0;
+	bool bComboAttack = false;
+
 public:
+	FORCEINLINE void SetComboAttack(bool Flag) { bComboAttack = Flag; }
 	FORCEINLINE UAnimMontage* GetNormalAttackMontage() { return NormalAttackMontage; }
 	void PlayNormalAttackMontage();
+	FName GetComboAttackSetcionName(int32 Section) { return ComboAttackSectionArray[Section]; }
 
 // KnockDown Section
 protected:

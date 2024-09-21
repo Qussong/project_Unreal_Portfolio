@@ -25,7 +25,8 @@ AGHEpicMonster::AGHEpicMonster()
 
 	// Skeletal Mesh Section
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh>
-		EpicMonsterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Gihoon/UE_Characters/Mannequins/Meshes/SKM_Manny5_GH.SKM_Manny5_GH'"));
+		//EpicMonsterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Gihoon/UE_Characters/Mannequins/Meshes/SKM_Manny5_GH.SKM_Manny5_GH'"));
+		EpicMonsterMeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Gihoon/UE_Characters/Mannequin_UE4/Meshes/SK_Mannequin_GH_EpicMonster.SK_Mannequin_GH_EpicMonster'"));
 	if (EpicMonsterMeshRef.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(EpicMonsterMeshRef.Object);
@@ -69,7 +70,7 @@ AGHEpicMonster::AGHEpicMonster()
 	}
 
 	// Stat Section
-	Stat->SetMaxHealth(500.f);
+	Stat->SetMaxHealth(200.f);
 	Stat->SetATK(30.f);
 	Stat->SetDEF(20.f);
 }
@@ -194,12 +195,16 @@ void AGHEpicMonster::AttackCheck_Tick(FVector& Start_V, FVector End_V, FVector& 
 
 		if (IsHit)
 		{
-			DrawDebugLine(GetWorld(), Start_V, End_V, FColor::Red, false, 1, 0, 1);
 			EnemyHit(HitResultsVertical);
+#if ENABLE_DRAW_DEBUG
+			DrawDebugLine(GetWorld(), Start_V, End_V, FColor::Red, false, 1, 0, 1);
+#endif
 		}
 		else
 		{
+#if ENABLE_DRAW_DEBUG
 			DrawDebugLine(GetWorld(), Start_V, End_V, FColor::Green, false, 1, 0, 1);
+#endif
 		}
 
 		// Line2

@@ -53,5 +53,4 @@ public:
 	bool IsZoomIn() { return ZoomInFlag; }
 	void ZoomIn(float DeltaTime);
 
-
 };

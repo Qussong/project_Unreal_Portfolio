@@ -34,7 +34,7 @@ void UGHPlayerAnim::PlayNormalAttackMontage()
 	if (!IsValid(NormalAttackMontage)) return;
 
 	// 몽타주 재생중인지 확인
-	if (Montage_IsPlaying(NormalAttackMontage)) return;
+	if (Montage_IsPlaying(NormalAttackMontage) && !bComboAttack) return;
 
 	// 스태미나 소모
 	Cast<UGHPlayerStatComponent>(Owner->GetStat())->UseStamina(EStaminUseType::ATTACK);
@@ -44,7 +44,19 @@ void UGHPlayerAnim::PlayNormalAttackMontage()
 	Cast<AGHPlayerController>(Owner->GetController())->Rotate();					// Player 회전
 
 	// 몽타주 재생
-	Montage_Play(NormalAttackMontage);
+	if (bComboAttack)
+	{
+		++ComboAttackSection %= 3;
+		Montage_Stop(0.2f, NormalAttackMontage);
+		Montage_Play(NormalAttackMontage);
+		Montage_Play(NormalAttackMontage);
+		Montage_JumpToSection(ComboAttackSectionArray[ComboAttackSection]);
+	}
+	else
+	{
+		ComboAttackSection = 0;
+		Montage_Play(NormalAttackMontage);
+	}
 }
 
 void UGHPlayerAnim::PlayKnockDownMontage()

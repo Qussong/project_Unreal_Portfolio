@@ -10,7 +10,7 @@ UENUM()
 enum class EStaminUseType : uint32
 {
 	RUN = 5,
-	ATTACK = 10,
+	ATTACK = 8,
 	ROLL = 15,
 };
 
