@@ -1,4 +1,4 @@
-# $\large\bf\color{#556B2F}Unreal Engine5\ Project$
+# $\large\bf\color{#556B2F}Unreal\ Engine5\ Project$
 
 ### $\large\bf\color{#CD5C5C}프로젝트\ 명$
 Hello World
@@ -24,13 +24,13 @@ Hello World
 
 ### $\large\bf\color{#CD5C5C}Notion\ URL$
 <a href="https://reminiscent-moth-47a.notion.site/UE5-Single-e540b8c03b17478eab34ec2248c2ab6a?pvs=4">
-    <img src="./ReadMe/Notion.png" alt="Win32API 개발일지" width="400"/>
+    <img src="./ReadMe/Notion.png" alt="HelloWorld 개발일지" width="400"/>
 </a>
 </br>
 
 ### $\large\bf\color{#CD5C5C}Youtube\ URL$
 <a href="https://youtu.be/3WtWpuiZKHQ?si=RhyvdUjwbz10e-NU">
-    <img src="./ReadMe/HelloWorld.png" alt="UE5 포폴영상" width="400"/>
+    <img src="./ReadMe/HelloWorld.png" alt="HelloWorld 영상" width="400"/>
 </a>
 </br>
 
