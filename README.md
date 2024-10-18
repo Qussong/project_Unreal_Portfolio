@@ -23,14 +23,14 @@ Hello World
 3주차 : 레벨디자인,사운드,파티클 추가 및 마무리
 
 ### $\large\bf\color{#CD5C5C}결과물$
-### <b>[ Notion URL ]</b>
+<b>[ Notion URL ]</b></br>
 $\color{#4F4F4F}(\ ↓ 이미지\ 클릭시\ 해당\ 페이지로\ 이동합니다.↓\ )$</br>
 <a href="https://reminiscent-moth-47a.notion.site/UE5-Single-e540b8c03b17478eab34ec2248c2ab6a?pvs=4">
     <img src="./ReadMe/Notion.png" alt="HelloWorld 개발일지" width="400"/>
 </a>
 </br>
 
-### <b>[ Youtube URL ]</b>
+<b>[ Youtube URL ]</b></br>
 $\color{#4F4F4F}(\ ↓ 이미지\ 클릭시\ 해당\ 페이지로\ 이동합니다.↓\ )$</br>
 <a href="https://youtu.be/3WtWpuiZKHQ?si=RhyvdUjwbz10e-NU">
     <img src="./ReadMe/HelloWorld.png" alt="HelloWorld 영상" width="400"/>
